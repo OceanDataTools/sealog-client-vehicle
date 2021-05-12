@@ -1,12 +1,10 @@
 const Pkg = require('../package.json');
 
-// Use these settings if connecting to a server using http
-const API_ROOT_URL = `http://localhost:8000/sealog-server`;
-const WS_ROOT_URL = `ws://localhost:8000/ws`;
-
-// Use these settings if connecting to a server using https
-// const API_ROOT_URL = `https://localhost:8000/sealog-server`;
-// const WS_ROOT_URL = `wss://localhost:8000/ws`;
+// Use https:// and wss:// for secure servers
+const API_ROOT_URL = (typeof window !== 'undefined') &&
+  `http://${window.location.hostname}:8000/sealog-server`;
+const WS_ROOT_URL = (typeof window !== 'undefined') &&
+  `ws://${window.location.hostname}:8000/ws`;
 
 // Change this if not hosting the client at the webserver's document root i.e. '/sealog/'
 const ROOT_PATH = "/";
