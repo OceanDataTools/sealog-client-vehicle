@@ -182,6 +182,35 @@ export function login({username, password, reCaptcha = null}) {
   };
 }
 
+export function autoLogin({loginToken, reCaptcha = null}) {
+
+  const payload = (reCaptcha !== null)? {loginToken, reCaptcha} : {loginToken};
+
+  return async function (dispatch) {
+    return await axios.post(`${API_ROOT_URL}/api/v1/auth/login`, payload
+      ).then(response => {
+        // If request is good save the JWT token to a cookie
+        cookies.set('token', response.data.token, { path: '/' });
+        cookies.set('id', response.data.id, { path: '/' });
+
+        dispatch({ type: AUTH_USER });
+        return dispatch(updateProfileState());
+      }).catch((error)=>{
+
+        if(error.response && error.response.status !== 401) {
+          // If request is unauthenticated
+          return dispatch(authError(error.response.data.message));
+        }
+        else if(error.message == "Network Error") {
+          return dispatch(authError("Unable to connect to server"));
+        }
+
+        return dispatch(authError(error.response.data.message));
+
+      });
+  };
+}
+
 export function gotoHome() {
 
   return function (dispatch) {
