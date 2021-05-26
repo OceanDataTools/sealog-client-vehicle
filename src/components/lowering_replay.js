@@ -302,7 +302,7 @@ class LoweringReplay extends Component {
 
           const videoDataIndex = videoLoggerData[0].data_array.findIndex((data) => data.data_value === frameGrabberData[0].data_array[i].data_value)
 
-          videoData = (videoDataIndex != null) ? { 
+          const videoData = (videoDataIndex != null) ? { 
               videoFilename: videoLoggerData[0].data_array[videoDataIndex + 1]['data_value'],
               videoElapse: videoLoggerData[0].data_array[videoDataIndex + 2]['data_value']
             }
