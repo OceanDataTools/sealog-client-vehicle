@@ -24,9 +24,9 @@ const FREV = 3;
 
 const maxEventsPerPage = 10;
 
-const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData'];
+const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtime4KFramegrabberData','vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData'];
 
-const imageAuxDataSources = ['vehicleRealtimeFramegrabberData'];
+const imageAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtime4KFramegrabberData'];
 const videoAuxDataSources = ['vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData'];
 
 const sortAuxDataSourceReference = ['vehicleRealtimeNavData','vesselRealtimeNavData'];
