@@ -3,4 +3,3 @@
 **/docs/
 **/reducers/
 webpack.config.js
-src/*.js

@@ -5,6 +5,7 @@ import { Row, Col, Card, Image } from 'react-bootstrap';
 import CustomPagination from './custom_pagination';
 import * as mapDispatchToProps from '../actions';
 import { ROOT_PATH } from '../client_config';
+import { handleMissingImage } from '../utils';
 
 // const maxImagesPerPage = 16
 
@@ -47,10 +48,6 @@ class LoweringGalleryTab extends Component {
     this.setState({activePage: eventKey});
   }
 
-  handleMissingImage(ev) {
-    ev.target.src = `${ROOT_PATH}images/noimage.jpeg`;
-  }
-
   handleEventShowDetailsModal(event_id) {
     this.props.showModal('eventShowDetails', { event: { id: event_id } , handleUpdateEvent: this.props.updateEvent });
   }
@@ -58,7 +55,7 @@ class LoweringGalleryTab extends Component {
   renderImage(source, filepath, event_id) {
     return (
       <Card className="event-image-data-card" id={`image_${source}`}>
-        <Image fluid onClick={ () => this.handleEventShowDetailsModal(event_id) } onError={this.handleMissingImage} src={filepath}/>
+        <Image fluid onClick={ () => this.handleEventShowDetailsModal(event_id) } onError={handleMissingImage} src={filepath}/>
       </Card>
     )
   }

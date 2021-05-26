@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import path from 'path';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { ButtonToolbar, Row, Col, Card, ListGroup, Image, OverlayTrigger, Tooltip, Form } from 'react-bootstrap';
@@ -13,7 +12,7 @@ import LoweringModeDropdown from './lowering_mode_dropdown';
 import CustomPagination from './custom_pagination';
 import ExportDropdown from './export_dropdown';
 import * as mapDispatchToProps from '../actions';
-import { ROOT_PATH, API_ROOT_URL, IMAGE_PATH } from '../client_config';
+import { getImageUrl, handleMissingImage } from '../utils';
 
 const playTimer = 3000;
 const ffwdTimer = 1000;
@@ -25,9 +24,10 @@ const FREV = 3;
 
 const maxEventsPerPage = 10;
 
-const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData'];
+const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData'];
 
 const imageAuxDataSources = ['vehicleRealtimeFramegrabberData'];
+const videoAuxDataSources = ['vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData'];
 
 const sortAuxDataSourceReference = ['vehicleRealtimeNavData','vesselRealtimeNavData'];
 
@@ -210,17 +210,18 @@ class LoweringReplay extends Component {
     }
   }
 
-  renderImage(source, filepath) {
+  renderImage(source, filepath, videoData = null) {
+
+    const videoFilename = (videoData) ? <OverlayTrigger placement="top" overlay={<Tooltip id="videoFilename">{videoData['videoFilename']}</Tooltip>}><FontAwesomeIcon className="mr-1" icon="file"/></OverlayTrigger> : "";
+    const videoElapse = (videoData) ? <OverlayTrigger placement="top" overlay={<Tooltip id="videoFilename">{videoData['videoElapse']}</Tooltip>}><FontAwesomeIcon className="mr-1" icon={["far", "clock"]}/></OverlayTrigger> : "";
+
     return (
       <Card  className="event-image-data-card" id={`image_${source}`}>
-        <Image fluid onError={this.handleMissingImage} src={filepath} onClick={ () => this.handleImageClick(source, filepath)} />
-        <span>{source}</span>
+        <Image fluid onError={handleMissingImage} src={filepath} onClick={ () => this.handleImageClick(source, filepath)} />
+        <span>{source.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}<span className="float-right">{videoFilename}{videoElapse}</span></span>
+
       </Card>
     );
-  }
-
-  handleMissingImage(ev) {
-    ev.target.src = `${ROOT_PATH}images/noimage.jpeg`;
   }
 
   handleLoweringReplayStart() {
@@ -293,19 +294,32 @@ class LoweringReplay extends Component {
   renderImageryCard() {
     if(this.props.event && this.props.event.selected_event.aux_data) { 
       let frameGrabberData = this.props.event.selected_event.aux_data.filter(aux_data => imageAuxDataSources.includes(aux_data.data_source));
+      let videoLoggerData = this.props.event.selected_event.aux_data.filter(aux_data => videoAuxDataSources.includes(aux_data.data_source));
       let tmpData = [];
 
       if(frameGrabberData.length > 0) {
         for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
-    
-          tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + path.basename(frameGrabberData[0].data_array[i+1].data_value)} );
+
+          const videoDataIndex = videoLoggerData[0].data_array.findIndex((data) => data.data_value === frameGrabberData[0].data_array[i].data_value)
+
+          videoData = (videoDataIndex != null) ? { 
+              videoFilename: videoLoggerData[0].data_array[videoDataIndex + 1]['data_value'],
+              videoElapse: videoLoggerData[0].data_array[videoDataIndex + 2]['data_value']
+            }
+          : null
+
+          tmpData.push({
+            source: frameGrabberData[0].data_array[i].data_value,
+            filepath: getImageUrl(frameGrabberData[0].data_array[i+1].data_value),
+            videoData: videoData
+          });
         }
 
         return (
           tmpData.map((camera) => {
             return (
               <Col className="px-1 mb-2" key={camera.source} xs={12} sm={6} md={4} lg={3}>
-                {this.renderImage(camera.source, camera.filepath)}
+                {this.renderImage(camera.source, camera.filepath, camera.videoData)}
               </Col>
             );
           })

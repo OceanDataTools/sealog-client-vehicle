@@ -3,19 +3,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import { Button, ListGroup, Image, Card, Tooltip, OverlayTrigger, Row, Col, Form, FormControl } from 'react-bootstrap';
 import ImagePreviewModal from './image_preview_modal';
-import path from 'path';
 import * as mapDispatchToProps from '../actions';
 import { Client } from '@hapi/nes/lib/client';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 
-import { WS_ROOT_URL, API_ROOT_URL, IMAGE_PATH, ROOT_PATH } from '../client_config';
+import { WS_ROOT_URL, API_ROOT_URL } from '../client_config';
+import { getImageUrl, handleMissingImage } from '../utils';
 
 const cookies = new Cookies();
 
-const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData']
+const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData']
 
 const imageAuxDataSources = ['vehicleRealtimeFramegrabberData']
+const videoAuxDataSources = ['vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData']
 
 const sortAuxDataSourceReference = ['vehicleRealtimeNavData','vesselRealtimeNavData'];
 
@@ -297,41 +298,63 @@ class EventHistory extends Component {
     this.setState({page: 0});
   }
 
-  handleMissingImage(ev) {
-    ev.target.src = `${ROOT_PATH}images/noimage.jpeg`
-  }
-
-  handleImagePreviewModal(source, filepath) {
+  handleImageClick(source, filepath) {
     this.props.showModal('imagePreview', { name: source, filepath: filepath })
   }
 
   renderImage(source, filepath) {
     return (
       <Card className="event-image-data-card" id={`image_${source}`}>
-          <Image fluid onError={this.handleMissingImage} src={filepath} onClick={ () => this.handleImagePreviewModal(source, filepath)} />
+          <Image fluid onError={handleMissingImage} src={filepath} onClick={ () => this.handleImageClick(source, filepath)} />
           <span>{source}</span>
       </Card>
     )
   }
 
+  renderImage(source, filepath, videoData = null) {
+
+    const videoFilename = (videoData) ? <OverlayTrigger placement="top" overlay={<Tooltip id="videoFilename">{videoData['videoFilename']}</Tooltip>}><FontAwesomeIcon className="mr-1" icon="file"/></OverlayTrigger> : "";
+    const videoElapse = (videoData) ? <OverlayTrigger placement="top" overlay={<Tooltip id="videoFilename">{videoData['videoElapse']}</Tooltip>}><FontAwesomeIcon className="mr-1" icon={["far", "clock"]}/></OverlayTrigger> : "";
+
+    return (
+      <Card  className="event-image-data-card" id={`image_${source}`}>
+        <Image fluid onError={this.handleMissingImage} src={filepath} onClick={ () => this.handleImageClick(source, filepath)} />
+        <span>{source.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}<span className="float-right">{videoFilename}{videoElapse}</span></span>
+      </Card>
+    );
+  }
+
   renderImageryCard() {
     if(this.state.event && this.state.event.aux_data) { 
-      let frameGrabberData = this.state.event.aux_data.filter(aux_data => imageAuxDataSources.includes(aux_data.data_source))
-      let tmpData = []
+      let frameGrabberData = this.state.event.aux_data.filter(aux_data => imageAuxDataSources.includes(aux_data.data_source));
+      let videoLoggerData = this.state.event.aux_data.filter(aux_data => videoAuxDataSources.includes(aux_data.data_source));
+      let tmpData = [];
 
       if(frameGrabberData.length > 0) {
         for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
-    
-          tmpData.push({source: frameGrabberData[0].data_array[i].data_value, filepath: API_ROOT_URL + IMAGE_PATH + '/' + path.basename(frameGrabberData[0].data_array[i+1].data_value)} )
+
+          const videoDataIndex = videoLoggerData[0].data_array.findIndex((data) => data.data_value === frameGrabberData[0].data_array[i].data_value)
+
+          const videoData = (videoDataIndex != null) ? { 
+              videoFilename: videoLoggerData[0].data_array[videoDataIndex + 1]['data_value'],
+              videoElapse: videoLoggerData[0].data_array[videoDataIndex + 2]['data_value']
+            }
+          : null
+
+          tmpData.push({
+            source: frameGrabberData[0].data_array[i].data_value,
+            filepath: getImageUrl(frameGrabberData[0].data_array[i+1].data_value),
+            videoData: videoData
+          });
         }
 
         return (
           tmpData.map((camera) => {
             return (
               <Col className="px-1 mb-2" key={camera.source} xs={12} sm={6} md={4} lg={3}>
-                {this.renderImage(camera.source, camera.filepath)}
+                {this.renderImage(camera.source, camera.filepath, camera.videoData)}
               </Col>
-            )
+            );
           })
         )
       }
