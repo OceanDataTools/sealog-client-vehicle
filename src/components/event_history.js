@@ -13,10 +13,10 @@ import { getImageUrl, handleMissingImage } from '../utils';
 
 const cookies = new Cookies();
 
-const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtime4KFramegrabberData','vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData']
+const excludeAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtimeFramegrabber2Data','vehicleRealtimeVideoFileData','vehicleRealtimeVideoFile2Data']
 
-const imageAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtime4KFramegrabberData']
-const videoAuxDataSources = ['vehicleRealtimeVideoFileData','vehicleRealtime4KVideoFileData']
+const imageAuxDataSources = ['vehicleRealtimeFramegrabberData','vehicleRealtimeFramegrabber2Data']
+const videoAuxDataSources = ['vehicleRealtimeVideoFileData','vehicleRealtimeVideoFile2Data']
 
 const sortAuxDataSourceReference = ['vehicleRealtimeNavData','vesselRealtimeNavData'];
 
@@ -302,15 +302,6 @@ class EventHistory extends Component {
     this.props.showModal('imagePreview', { name: source, filepath: filepath })
   }
 
-  renderImage(source, filepath) {
-    return (
-      <Card className="event-image-data-card" id={`image_${source}`}>
-          <Image fluid onError={handleMissingImage} src={filepath} onClick={ () => this.handleImageClick(source, filepath)} />
-          <span>{source}</span>
-      </Card>
-    )
-  }
-
   renderImage(source, filepath, videoData = null) {
 
     const videoFilename = (videoData) ? <OverlayTrigger placement="top" overlay={<Tooltip id="videoFilename">{videoData['videoFilename']}</Tooltip>}><FontAwesomeIcon className="mr-1" icon="file"/></OverlayTrigger> : "";
@@ -328,22 +319,27 @@ class EventHistory extends Component {
     if(this.state.event && this.state.event.aux_data) { 
       let frameGrabberData = this.state.event.aux_data.filter(aux_data => imageAuxDataSources.includes(aux_data.data_source));
       let videoLoggerData = this.state.event.aux_data.filter(aux_data => videoAuxDataSources.includes(aux_data.data_source));
-      let tmpData = [];
 
-      if(frameGrabberData.length > 0) {
-        for (let i = 0; i < frameGrabberData[0].data_array.length; i+=2) {
+      if(frameGrabberData.length === 0) {
+        return null;
+      }
 
-          const videoDataIndex = videoLoggerData[0].data_array.findIndex((data) => data.data_value === frameGrabberData[0].data_array[i].data_value)
+      return frameGrabberData.map((frameGrabber,idx) => {
+
+        let tmpData = [];
+        for (let i = 0; i < frameGrabber.data_array.length; i+=2) {
+
+          const videoDataIndex = videoLoggerData[idx].data_array.findIndex((data) => data.data_value === frameGrabber.data_array[i].data_value)
 
           const videoData = (videoDataIndex != null) ? { 
-              videoFilename: videoLoggerData[0].data_array[videoDataIndex + 1]['data_value'],
-              videoElapse: videoLoggerData[0].data_array[videoDataIndex + 2]['data_value']
+              videoFilename: videoLoggerData[idx].data_array[videoDataIndex + 1]['data_value'],
+              videoElapse: videoLoggerData[idx].data_array[videoDataIndex + 2]['data_value']
             }
           : null
 
           tmpData.push({
-            source: frameGrabberData[0].data_array[i].data_value,
-            filepath: getImageUrl(frameGrabberData[0].data_array[i+1].data_value),
+            source: frameGrabber.data_array[i].data_value,
+            filepath: getImageUrl(frameGrabber.data_array[i+1].data_value),
             videoData: videoData
           });
         }
@@ -357,7 +353,7 @@ class EventHistory extends Component {
             );
           })
         )
-      }
+      });
     }
   }
 
