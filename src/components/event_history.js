@@ -329,7 +329,7 @@ class EventHistory extends Component {
         let tmpData = [];
         for (let i = 0; i < frameGrabber.data_array.length; i+=2) {
 
-          const videoDataIndex = videoLoggerData[idx].data_array.findIndex((data) => data.data_value === frameGrabber.data_array[i].data_value)
+          const videoDataIndex = (videoLoggerData.length > idx) ? videoLoggerData[idx].data_array.findIndex((data) => data.data_value === frameGrabber.data_array[i].data_value) : null
 
           const videoData = (videoDataIndex != null) ? { 
               videoFilename: videoLoggerData[idx].data_array[videoDataIndex + 1]['data_value'],
