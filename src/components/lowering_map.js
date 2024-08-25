@@ -126,8 +126,7 @@ class LoweringMap extends Component {
         eventIDs: [],
         polyline: L.polyline([]),
         startPoint: null,
-        endPoint: null,
-
+        endPoint: null
       }
 
       const aux_data = await get_event_aux_data_by_lowering({ datasource }, id)
@@ -138,7 +137,6 @@ class LoweringMap extends Component {
       }
 
       aux_data.forEach((r_data) => {
-
         try {
           const latLng = [
             parseFloat(r_data['data_array'].find((data) => data['data_name'] == 'latitude')['data_value']),
@@ -153,8 +151,7 @@ class LoweringMap extends Component {
             }
             trackline.endPoint = latLng
           }
-        }
-        catch {
+        } catch {
           console.error('Problem parsing', r_data['data_array'])
         }
       })

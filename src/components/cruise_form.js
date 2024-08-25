@@ -4,13 +4,12 @@ import { connect } from 'react-redux'
 import { reduxForm, Field, change } from 'redux-form'
 import { Button, Card, Form } from 'react-bootstrap'
 import { renderAlert, renderDatePicker, renderMessage, renderTextField, renderTextArea, dateFormat } from './form_elements'
-import cookies from '../cookies'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FilePond } from 'react-filepond'
 import CopyCruiseToClipboard from './copy_cruise_to_clipboard'
-import { handle_cruise_file_delete, handle_cruise_file_download, CRUISE_ROUTE } from '../api'
+import { authorizationHeader, handle_cruise_file_delete, handle_cruise_file_download, CRUISE_ROUTE } from '../api'
 import { API_ROOT_URL, CRUISE_ID_PLACEHOLDER, CRUISE_ID_REGEX, DEFAULT_VESSEL } from '../client_settings'
 import { _Cruise_, _cruise_ } from '../vocab'
 
@@ -246,15 +245,11 @@ class CruiseForm extends Component {
                   url: API_ROOT_URL,
                   process: {
                     url: CRUISE_ROUTE + '/filepond/process/' + this.props.cruise.id,
-                    headers: {
-                      Authorization: 'Bearer ' + cookies.get('token')
-                    }
+                    ...authorizationHeader()
                   },
                   revert: {
                     url: CRUISE_ROUTE + '/filepond/revert',
-                    headers: {
-                      Authorization: 'Bearer ' + cookies.get('token')
-                    }
+                    ...authorizationHeader()
                   }
                 }}
                 onupdatefiles={() => {

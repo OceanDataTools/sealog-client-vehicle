@@ -381,7 +381,7 @@ const mapStateToProps = (state) => {
   return {
     cruises: state.cruise.cruises,
     cruise_id: state.cruise.cruise.id,
-    roles: state.user.profile.roles
+    roles: state.user.profile.roles || []
   }
 }
 

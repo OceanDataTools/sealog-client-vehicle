@@ -16,28 +16,42 @@ class LoweringStatsForm extends Component {
   }
 
   handleFormSubmit(formProps) {
-    formProps.start_ts = formProps.start_ts._isAMomentObject ? formProps.start_ts.toISOString() : moment.utc(formProps.start_ts).toISOString()
+    formProps.start_ts = formProps.start_ts._isAMomentObject
+      ? formProps.start_ts.toISOString()
+      : moment.utc(formProps.start_ts).toISOString()
     formProps.stop_ts = formProps.stop_ts._isAMomentObject ? formProps.stop_ts.toISOString() : moment.utc(formProps.stop_ts).toISOString()
-    formProps.milestones.lowering_descending =
-      formProps.milestones.lowering_descending && formProps.milestones.lowering_descending._isAMomentObject
-      ? formProps.milestones.lowering_descending.toISOString()
-      : moment.utc(formProps.milestones.lowering_descending).toISOString()
-    formProps.milestones.lowering_on_bottom =
-      formProps.milestones.lowering_on_bottom && formProps.milestones.lowering_on_bottom._isAMomentObject
-        ? formProps.milestones.lowering_on_bottom.toISOString()
-        : moment.utc(formProps.milestones.lowering_on_bottom).toISOString()
-    formProps.milestones.lowering_off_bottom =
-      formProps.milestones.lowering_off_bottom && formProps.milestones.lowering_off_bottom._isAMomentObject
-        ? formProps.milestones.lowering_off_bottom.toISOString()
-        : moment.utc(formProps.milestones.lowering_off_bottom).toISOString()
-    formProps.milestones.lowering_on_surface =
-      formProps.milestones.lowering_on_surface && formProps.milestones.lowering_on_surface._isAMomentObject
-        ? formProps.milestones.lowering_on_surface.toISOString()
-        : moment.utc(formProps.milestones.lowering_on_surface).toISOString()
-    formProps.milestones.lowering_aborted =
-      formProps.milestones.lowering_aborted && formProps.milestones.lowering_aborted._isAMomentObject
-        ? formProps.milestones.lowering_aborted.toISOString()
-        : moment.utc(formProps.milestones.lowering_aborted).toISOString()
+
+    // for (const [key, value] of Object.entries(formProps.milestones)) {
+    //   value && value._isAMomentObject ? value.toISOString() : moment.utc(value).toISOString()
+    // }
+
+    Object.keys(formProps.milestones).forEach((milestone) => {
+      formProps.milestones[milestone] =
+        formProps.milestones[milestone] && formProps.milestones[milestone]._isAMomentObject
+          ? formProps.milestones[milestone].toISOString()
+          : moment.utc(formProps.milestones[milestone]).toISOString()
+    })
+
+    // formProps.milestones.lowering_descending =
+    //   formProps.milestones.lowering_descending && formProps.milestones.lowering_descending._isAMomentObject
+    //   ? formProps.milestones.lowering_descending.toISOString()
+    //   : moment.utc(formProps.milestones.lowering_descending).toISOString()
+    // formProps.milestones.lowering_on_bottom =
+    //   formProps.milestones.lowering_on_bottom && formProps.milestones.lowering_on_bottom._isAMomentObject
+    //     ? formProps.milestones.lowering_on_bottom.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_on_bottom).toISOString()
+    // formProps.milestones.lowering_off_bottom =
+    //   formProps.milestones.lowering_off_bottom && formProps.milestones.lowering_off_bottom._isAMomentObject
+    //     ? formProps.milestones.lowering_off_bottom.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_off_bottom).toISOString()
+    // formProps.milestones.lowering_on_surface =
+    //   formProps.milestones.lowering_on_surface && formProps.milestones.lowering_on_surface._isAMomentObject
+    //     ? formProps.milestones.lowering_on_surface.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_on_surface).toISOString()
+    // formProps.milestones.lowering_aborted =
+    //   formProps.milestones.lowering_aborted && formProps.milestones.lowering_aborted._isAMomentObject
+    //     ? formProps.milestones.lowering_aborted.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_aborted).toISOString()
 
     if (
       (formProps.stats.bounding_box.bbox_north == null || formProps.stats.bounding_box.bbox_north == '') &&
@@ -205,7 +219,6 @@ LoweringStatsForm.propTypes = {
 }
 
 const validate = (formProps) => {
-
   const errors = { milestones: {}, stats: {} }
 
   if (formProps.start_ts === '') {
@@ -222,9 +235,7 @@ const validate = (formProps) => {
 
   if (formProps.start_ts !== '' && formProps.stop_ts !== '') {
     if (
-      moment
-        .utc(formProps.stop_ts, dateFormat + ' ' + timeFormat)
-        .isBefore(moment.utc(formProps.start_ts, dateFormat + ' ' + timeFormat))
+      moment.utc(formProps.stop_ts, dateFormat + ' ' + timeFormat).isBefore(moment.utc(formProps.start_ts, dateFormat + ' ' + timeFormat))
     ) {
       errors.stop_ts = 'Stop date must be later than start date'
     }
@@ -233,9 +244,7 @@ const validate = (formProps) => {
   if (
     formProps.milestones.lowering_off_bottom &&
     formProps.milestones.lowering_off_bottom !== '' &&
-    moment
-      .utc(formProps.stop_ts, dateFormat + ' ' + timeFormat)
-      .isBefore(moment.utc(formProps.stop_ts, dateFormat + ' ' + timeFormat))
+    moment.utc(formProps.stop_ts, dateFormat + ' ' + timeFormat).isBefore(moment.utc(formProps.stop_ts, dateFormat + ' ' + timeFormat))
   ) {
     errors.milestones.lowering_off_bottom = 'Off bottom date must be before stop date'
   }
@@ -320,14 +329,15 @@ const validate = (formProps) => {
 }
 
 const mapStateToProps = (state) => {
+  const max_depth =
+    state.lowering.lowering.lowering_additional_meta.stats && state.lowering.lowering.lowering_additional_meta.stats.max_depth
+      ? state.lowering.lowering.lowering_additional_meta.stats.max_depth
+      : null
 
-  const max_depth = (state.lowering.lowering.lowering_additional_meta.stats && state.lowering.lowering.lowering_additional_meta.stats.max_depth)
-    ? state.lowering.lowering.lowering_additional_meta.stats.max_depth
-    : null
-
-  const bounding_box = (state.lowering.lowering.lowering_additional_meta.stats && state.lowering.lowering.lowering_additional_meta.stats.bounding_box)
-    ? state.lowering.lowering.lowering_additional_meta.stats.bounding_box
-    : [null, null, null, null]
+  const bounding_box =
+    state.lowering.lowering.lowering_additional_meta.stats && state.lowering.lowering.lowering_additional_meta.stats.bounding_box
+      ? state.lowering.lowering.lowering_additional_meta.stats.bounding_box
+      : [null, null, null, null]
 
   const initialValues = {
     start_ts: state.lowering.lowering.start_ts,

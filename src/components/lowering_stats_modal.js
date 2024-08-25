@@ -187,7 +187,7 @@ class LoweringStatsModal extends Component {
         depth: [],
         polyline: L.polyline([]),
         startPoint: null,
-        endPoint: null,
+        endPoint: null
       }
 
       if (!this.state.events.length) {
@@ -221,8 +221,7 @@ class LoweringStatsModal extends Component {
             trackline.ts[trackline.ts.length - 1],
             parseFloat(aux_data['data_array'].find((data) => data['data_name'] == 'depth')['data_value'])
           ])
-        }
-        catch {
+        } catch {
           console.error('Problem parsing', aux_data['data_array'])
         }
       })
@@ -553,7 +552,6 @@ class LoweringStatsModal extends Component {
       this.state.tracklines[this.state.posDataSource] && !this.state.tracklines[this.state.posDataSource].endPoint !== null ? (
         <CircleMarker center={this.state.tracklines[this.state.posDataSource].endPoint} radius={3} color={'red'} />
       ) : null
-
 
     if (this.props.lowering) {
       if (!this.state.fetching) {

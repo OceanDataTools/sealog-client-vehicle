@@ -9,35 +9,34 @@ import { WS_ROOT_URL, CATEGORY_SORT_ORDER } from '../client_settings'
 import * as mapDispatchToProps from '../actions'
 
 const sortCategories = (category_list) => {
-
-  if(CATEGORY_SORT_ORDER == null || CATEGORY_SORT_ORDER.length === 0) {
+  if (CATEGORY_SORT_ORDER == null || CATEGORY_SORT_ORDER.length === 0) {
     return category_list
   }
 
-  const order_map = new Map();
-  CATEGORY_SORT_ORDER.forEach((item, index) => order_map.set(item.toLowerCase(), index));
+  const order_map = new Map()
+  CATEGORY_SORT_ORDER.forEach((item, index) => order_map.set(item.toLowerCase(), index))
 
   return category_list.sort((a, b) => {
     // Check if the item exists in the orderList
-    const indexA = order_map.has(a) ? order_map.get(a) : Infinity;
-    const indexB = order_map.has(b) ? order_map.get(b) : Infinity;
-    
+    const indexA = order_map.has(a) ? order_map.get(a) : Infinity
+    const indexB = order_map.has(b) ? order_map.get(b) : Infinity
+
     // If both items are in the orderList, sort by their indices
     if (indexA !== Infinity && indexB !== Infinity) {
-      return indexA - indexB;
+      return indexA - indexB
     }
-    
+
     // If only one item is in the orderList, place it before the item not in the list
     if (indexA === Infinity && indexB !== Infinity) {
-      return 1;
+      return 1
     }
     if (indexB === Infinity && indexA !== Infinity) {
-      return -1;
+      return -1
     }
-    
+
     // If neither item is in the orderList, preserve their original order
-    return 0;
-  });
+    return 0
+  })
 }
 
 class EventTemplateList extends Component {
@@ -98,7 +97,7 @@ class EventTemplateList extends Component {
 
     if (event_template.event_free_text_required || needs_modal) {
       const event = await this.props.createEvent({
-        event_value: event_template.event_value,
+        event_value: event_template.event_value
         // publish: false
       })
       this.props.showModal('eventOptions', {

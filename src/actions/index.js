@@ -95,12 +95,6 @@ import { ROOT_PATH } from '../client_settings'
 const port = window.location.port ? ':' + window.location.port : ''
 export const resetURL = window.location.protocol + '//' + window.location.hostname + port + ROOT_PATH + 'resetPassword/'
 
-// export const authorizationHeader = {
-//   headers: {
-//     Authorization: 'Bearer ' + cookies.get('token')
-//   }
-// }
-
 export const advanceLoweringReplayTo = (id) => {
   return async (dispatch) => {
     const payload = (await get_event_exports({}, id)) || {}
@@ -924,7 +918,6 @@ export const updateLowering = (formProps) => {
   let fields = { ...formProps }
   delete fields.id
   delete fields.lowering_access_list
-  delete fields.lowering_additional_meta.lowering_files
 
   return async (dispatch) => {
     const response = await update_lowering(fields, formProps.id)

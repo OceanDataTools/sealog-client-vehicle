@@ -132,14 +132,14 @@ export const post_login = async (payload) => {
 
 export const register_user = async (payload) => {
   return await axios
-  .post(`${API_ROOT_URL}/api/v1/auth/register`, payload)
-  .then(() => {
-    return { success: true }
-  })
-  .catch((error) => {
-    console.debug(error)
-    return { error }
-  })
+    .post(`${API_ROOT_URL}/api/v1/auth/register`, payload)
+    .then(() => {
+      return { success: true }
+    })
+    .catch((error) => {
+      console.debug(error)
+      return { error }
+    })
 }
 
 export const reset_password = async (payload) => {
@@ -655,12 +655,12 @@ export const handle_cruise_file_delete = async (filename, cruise_id, callback) =
   await _handleFileDelete(filename, CRUISE_ROUTE, cruise_id, callback)
 }
 
-export const handle_lowering_file_delete = async (filename, lowering_id, callback) => {
-  await _handleFileDelete(filename, LOWERING_ROUTE, lowering_id, callback)
-}
-
 export const handle_cruise_file_download = async (filename, cruise_id) => {
   await _handleFileDownload(filename, CRUISE_ROUTE, cruise_id)
+}
+
+export const handle_lowering_file_delete = async (filename, lowering_id, callback) => {
+  await _handleFileDelete(filename, LOWERING_ROUTE, lowering_id, callback)
 }
 
 export const handle_lowering_file_download = async (filename, lowering_id) => {
