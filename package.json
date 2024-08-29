@@ -29,7 +29,7 @@
   ],
   "dependencies": {
     "@hapi/nes": "^13.0.1",
-    "axios": "^1.7.3",
+    "axios": "^1.7.4",
     "bootstrap": "^4.6.2",
     "connected-react-router": "^6.9.3",
     "filepond": "^4.31.1",
