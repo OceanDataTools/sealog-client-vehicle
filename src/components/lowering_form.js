@@ -4,13 +4,12 @@ import { connect } from 'react-redux'
 import { reduxForm, Field, change } from 'redux-form'
 import { Button, Card, Form } from 'react-bootstrap'
 import { renderAlert, renderDateTimePicker, renderMessage, renderTextField, renderTextArea } from './form_elements'
-import cookies from '../cookies'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FilePond } from 'react-filepond'
 import CopyLoweringToClipboard from './copy_lowering_to_clipboard'
-import { handle_lowering_file_delete, handle_lowering_file_download, LOWERING_ROUTE } from '../api'
+import { authorizationHeader, handle_lowering_file_delete, handle_lowering_file_download, LOWERING_ROUTE } from '../api'
 import { API_ROOT_URL, LOWERING_ID_PLACEHOLDER, LOWERING_ID_REGEX } from '../client_settings'
 import { _Lowering_ } from '../vocab'
 
@@ -46,8 +45,8 @@ class LoweringForm extends Component {
 
   handleFormSubmit(formProps) {
     formProps.lowering_location = formProps.lowering_location || ''
-    formProps.lowering_additional_meta.lowering_description = formProps.lowering_additional_meta.lowering_description || ''
     formProps.lowering_hidden = formProps.lowering_hidden || false
+    formProps.lowering_additional_meta.lowering_description = formProps.lowering_additional_meta.lowering_description || ''
 
     formProps.lowering_tags = formProps.lowering_tags || []
     if (typeof formProps.lowering_tags === 'string') {
@@ -181,15 +180,11 @@ class LoweringForm extends Component {
                   url: API_ROOT_URL,
                   process: {
                     url: LOWERING_ROUTE + '/filepond/process/' + this.props.lowering.id,
-                    headers: {
-                      Authorization: 'Bearer ' + cookies.get('token')
-                    }
+                    ...authorizationHeader()
                   },
                   revert: {
                     url: LOWERING_ROUTE + '/filepond/revert',
-                    headers: {
-                      Authorization: 'Bearer ' + cookies.get('token')
-                    }
+                    ...authorizationHeader()
                   }
                 }}
                 onupdatefiles={() => {

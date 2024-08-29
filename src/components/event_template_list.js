@@ -5,8 +5,39 @@ import PropTypes from 'prop-types'
 import EventTemplateOptionsModal from './event_template_options_modal'
 import { Client } from '@hapi/nes/lib/client'
 import { authorizationHeader } from '../api'
-import { WS_ROOT_URL } from '../client_settings'
+import { WS_ROOT_URL, CATEGORY_SORT_ORDER } from '../client_settings'
 import * as mapDispatchToProps from '../actions'
+
+const sortCategories = (category_list) => {
+  if (CATEGORY_SORT_ORDER == null || CATEGORY_SORT_ORDER.length === 0) {
+    return category_list
+  }
+
+  const order_map = new Map()
+  CATEGORY_SORT_ORDER.forEach((item, index) => order_map.set(item.toLowerCase(), index))
+
+  return category_list.sort((a, b) => {
+    // Check if the item exists in the orderList
+    const indexA = order_map.has(a) ? order_map.get(a) : Infinity
+    const indexB = order_map.has(b) ? order_map.get(b) : Infinity
+
+    // If both items are in the orderList, sort by their indices
+    if (indexA !== Infinity && indexB !== Infinity) {
+      return indexA - indexB
+    }
+
+    // If only one item is in the orderList, place it before the item not in the list
+    if (indexA === Infinity && indexB !== Infinity) {
+      return 1
+    }
+    if (indexB === Infinity && indexA !== Infinity) {
+      return -1
+    }
+
+    // If neither item is in the orderList, preserve their original order
+    return 0
+  })
+}
 
 class EventTemplateList extends Component {
   constructor(props) {
@@ -66,8 +97,8 @@ class EventTemplateList extends Component {
 
     if (event_template.event_free_text_required || needs_modal) {
       const event = await this.props.createEvent({
-        event_value: event_template.event_value,
-        publish: false
+        event_value: event_template.event_value
+        // publish: false
       })
       this.props.showModal('eventOptions', {
         eventTemplate: event_template,
@@ -111,18 +142,20 @@ class EventTemplateList extends Component {
       )
     ].sort()
 
+    const sorted_categories = sortCategories(template_categories)
+
     if (this.props.event_templates) {
-      if (template_categories.length > 0) {
+      if (sorted_categories.length > 0) {
         return (
           <Tabs
             className='category-tab'
             variant='pills'
             transition={false}
-            activeKey={this.state.active_template_category ? this.state.active_template_category : template_categories[0]}
+            activeKey={this.state.active_template_category ? this.state.active_template_category : sorted_categories[0]}
             id='event-template-tabs'
             onSelect={(category) => this.updateEventTemplateCategory(category)}
           >
-            {template_categories.map((template_category) => {
+            {sorted_categories.map((template_category) => {
               return (
                 <Tab eventKey={template_category} title={template_category} key={template_category}>
                   {this.props.event_templates

@@ -101,7 +101,7 @@ class EventHistory extends Component {
             this.fetchEvents()
           }
 
-          if (update_ts > event_ts) {
+          if (update_ts >= event_ts) {
             this.fetchEventExport()
           }
         }

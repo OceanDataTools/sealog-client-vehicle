@@ -187,6 +187,9 @@ export const renderDateTimePicker = ({
         timeFormat={timeFormat}
         selected={input.value ? moment.utc(input.value) : null}
         inputProps={{ disabled }}
+        renderInput={(props) => {
+          return <input {...props} value={input.value ? props.value : ''} />
+        }}
       />
       {error ? (
         <div className={'w-100 mt-1 text-danger'} style={{ fontSize: '.7rem' }}>

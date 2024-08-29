@@ -83,6 +83,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       title: HEADER_TITLE,
+      favicon: "./src/assets/images/favicon.ico",
       template: './src/assets/index.html',
     }),
     new MiniCssExtractPlugin({

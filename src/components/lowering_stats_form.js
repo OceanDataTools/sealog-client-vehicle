@@ -16,28 +16,42 @@ class LoweringStatsForm extends Component {
   }
 
   handleFormSubmit(formProps) {
-    formProps.start_ts = formProps.start_ts._isAMomentObject ? formProps.start_ts : moment.utc(formProps.start)
-    formProps.stop_ts = formProps.stop_ts._isAMomentObject ? formProps.stop_ts : moment.utc(formProps.stop_ts)
-    ;(formProps.milestones.lowering_descending =
-      formProps.milestones.lowering_descending && formProps.milestones.lowering_descending._isAMomentObject
-        ? formProps.milestones.lowering_descending.toISOString()
-        : moment.utc(formProps.milestones.lowering_descending).toISOString()),
-      (formProps.milestones.lowering_on_bottom =
-        formProps.milestones.lowering_on_bottom && formProps.milestones.lowering_on_bottom._isAMomentObject
-          ? formProps.milestones.lowering_on_bottom.toISOString()
-          : moment.utc(formProps.milestones.lowering_on_bottom).toISOString()),
-      (formProps.milestones.lowering_off_bottom =
-        formProps.milestones.lowering_on_bottom && formProps.milestones.lowering_off_bottom._isAMomentObject
-          ? formProps.lowering_off_bottom.toISOString()
-          : moment.utc(formProps.lowering_off_bottom).toISOString()),
-      (formProps.milestones.lowering_on_surface =
-        formProps.milestones.lowering_on_surface && formProps.milestones.lowering_on_surface._isAMomentObject
-          ? formProps.milestones.lowering_on_surface.toISOString()
-          : moment.utc(formProps.milestones.lowering_on_surface).toISOString()),
-      (formProps.milestones.lowering_aborted =
-        formProps.milestones.lowering_aborted && formProps.milestones.lowering_aborted._isAMomentObject
-          ? formProps.milestones.lowering_aborted.toISOString()
-          : moment.utc(formProps.milestones.lowering_aborted).toISOString())
+    formProps.start_ts = formProps.start_ts._isAMomentObject
+      ? formProps.start_ts.toISOString()
+      : moment.utc(formProps.start_ts).toISOString()
+    formProps.stop_ts = formProps.stop_ts._isAMomentObject ? formProps.stop_ts.toISOString() : moment.utc(formProps.stop_ts).toISOString()
+
+    // for (const [key, value] of Object.entries(formProps.milestones)) {
+    //   value && value._isAMomentObject ? value.toISOString() : moment.utc(value).toISOString()
+    // }
+
+    Object.keys(formProps.milestones).forEach((milestone) => {
+      formProps.milestones[milestone] =
+        formProps.milestones[milestone] && formProps.milestones[milestone]._isAMomentObject
+          ? formProps.milestones[milestone].toISOString()
+          : moment.utc(formProps.milestones[milestone]).toISOString()
+    })
+
+    // formProps.milestones.lowering_descending =
+    //   formProps.milestones.lowering_descending && formProps.milestones.lowering_descending._isAMomentObject
+    //   ? formProps.milestones.lowering_descending.toISOString()
+    //   : moment.utc(formProps.milestones.lowering_descending).toISOString()
+    // formProps.milestones.lowering_on_bottom =
+    //   formProps.milestones.lowering_on_bottom && formProps.milestones.lowering_on_bottom._isAMomentObject
+    //     ? formProps.milestones.lowering_on_bottom.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_on_bottom).toISOString()
+    // formProps.milestones.lowering_off_bottom =
+    //   formProps.milestones.lowering_off_bottom && formProps.milestones.lowering_off_bottom._isAMomentObject
+    //     ? formProps.milestones.lowering_off_bottom.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_off_bottom).toISOString()
+    // formProps.milestones.lowering_on_surface =
+    //   formProps.milestones.lowering_on_surface && formProps.milestones.lowering_on_surface._isAMomentObject
+    //     ? formProps.milestones.lowering_on_surface.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_on_surface).toISOString()
+    // formProps.milestones.lowering_aborted =
+    //   formProps.milestones.lowering_aborted && formProps.milestones.lowering_aborted._isAMomentObject
+    //     ? formProps.milestones.lowering_aborted.toISOString()
+    //     : moment.utc(formProps.milestones.lowering_aborted).toISOString()
 
     if (
       (formProps.stats.bounding_box.bbox_north == null || formProps.stats.bounding_box.bbox_north == '') &&
@@ -315,23 +329,27 @@ const validate = (formProps) => {
 }
 
 const mapStateToProps = (state) => {
-  const [bbox_north, bbox_east, bbox_south, bbox_west] = state.lowering.lowering.lowering_additional_meta.stats.bounding_box || [
-    '',
-    '',
-    '',
-    ''
-  ]
+  const max_depth =
+    state.lowering.lowering.lowering_additional_meta.stats && state.lowering.lowering.lowering_additional_meta.stats.max_depth
+      ? state.lowering.lowering.lowering_additional_meta.stats.max_depth
+      : null
+
+  const bounding_box =
+    state.lowering.lowering.lowering_additional_meta.stats && state.lowering.lowering.lowering_additional_meta.stats.bounding_box
+      ? state.lowering.lowering.lowering_additional_meta.stats.bounding_box
+      : [null, null, null, null]
+
   const initialValues = {
     start_ts: state.lowering.lowering.start_ts,
     stop_ts: state.lowering.lowering.stop_ts,
-    milestones: state.lowering.lowering.lowering_additional_meta.milestones,
+    milestones: state.lowering.lowering.lowering_additional_meta.milestones || {},
     stats: {
-      max_depth: state.lowering.lowering.lowering_additional_meta.stats.max_depth,
+      max_depth: max_depth,
       bounding_box: {
-        bbox_north,
-        bbox_east,
-        bbox_south,
-        bbox_west
+        bbox_north: bounding_box[0],
+        bbox_east: bounding_box[1],
+        bbox_south: bounding_box[2],
+        bbox_west: bounding_box[3]
       }
     }
   }

@@ -381,7 +381,7 @@ const mapStateToProps = (state) => {
   return {
     lowerings: state.lowering.lowerings,
     lowering_id: state.lowering.lowering.id,
-    roles: state.user.profile.roles
+    roles: state.user.profile.roles || []
   }
 }
 

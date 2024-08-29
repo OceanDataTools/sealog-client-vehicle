@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import moment from 'moment'
-import { Map, TileLayer, WMSTileLayer, Marker, Polyline, Popup, LayersControl, ScaleControl } from 'react-leaflet'
+import { Map, TileLayer, WMSTileLayer, Marker, Polyline, Popup, LayersControl, ScaleControl, CircleMarker } from 'react-leaflet'
 import L from 'leaflet'
 import { ButtonToolbar, Container, Row, Col, Card, Tooltip, OverlayTrigger, ListGroup, Form } from 'react-bootstrap'
 import Slider, { createSliderWithTooltip } from 'rc-slider'
@@ -124,7 +124,9 @@ class LoweringMap extends Component {
     for (const datasource of POSITION_DATASOURCES) {
       let trackline = {
         eventIDs: [],
-        polyline: L.polyline([])
+        polyline: L.polyline([]),
+        startPoint: null,
+        endPoint: null
       }
 
       const aux_data = await get_event_aux_data_by_lowering({ datasource }, id)
@@ -135,14 +137,22 @@ class LoweringMap extends Component {
       }
 
       aux_data.forEach((r_data) => {
-        const latLng = [
-          parseFloat(r_data['data_array'].find((data) => data['data_name'] == 'latitude')['data_value']),
-          parseFloat(r_data['data_array'].find((data) => data['data_name'] == 'longitude')['data_value'])
-        ]
+        try {
+          const latLng = [
+            parseFloat(r_data['data_array'].find((data) => data['data_name'] == 'latitude')['data_value']),
+            parseFloat(r_data['data_array'].find((data) => data['data_name'] == 'longitude')['data_value'])
+          ]
 
-        if (latLng[0] != 0 && latLng[1] != 0) {
-          trackline.polyline.addLatLng(latLng)
-          trackline.eventIDs.push(r_data['event_id'])
+          if (latLng[0] != 0 && latLng[1] != 0) {
+            trackline.polyline.addLatLng(latLng)
+            trackline.eventIDs.push(r_data['event_id'])
+            if (trackline.startPoint === null) {
+              trackline.startPoint = latLng
+            }
+            trackline.endPoint = latLng
+          }
+        } catch {
+          console.error('Problem parsing', r_data['data_array'])
         }
       })
 
@@ -462,10 +472,20 @@ class LoweringMap extends Component {
 
     for (const datasource of POSITION_DATASOURCES) {
       if (this.state.tracklines[datasource] && !this.state.tracklines[datasource].polyline.isEmpty()) {
-        trackLine = <Polyline color='lime' positions={this.state.tracklines[datasource].polyline.getLatLngs()} />
+        trackLine = <Polyline color='yellow' positions={this.state.tracklines[datasource].polyline.getLatLngs()} />
         break
       }
     }
+
+    const startMarker = //null
+      this.state.tracklines[this.state.posDataSource] && !this.state.tracklines[this.state.posDataSource].startPoint !== null ? (
+        <CircleMarker center={this.state.tracklines[this.state.posDataSource].startPoint} radius={3} color={'green'} />
+      ) : null
+
+    const endMarker = //null
+      this.state.tracklines[this.state.posDataSource] && !this.state.tracklines[this.state.posDataSource].endPoint !== null ? (
+        <CircleMarker center={this.state.tracklines[this.state.posDataSource].endPoint} radius={3} color={'red'} />
+      ) : null
 
     return (
       <Container className='mt-2'>
@@ -506,6 +526,8 @@ class LoweringMap extends Component {
                 <ScaleControl position='bottomleft' />
                 <LayersControl position='topright'>{baseLayers}</LayersControl>
                 {trackLine}
+                {startMarker}
+                {endMarker}
                 {this.renderMarker()}
               </Map>
             </Card>

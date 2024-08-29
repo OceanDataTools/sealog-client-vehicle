@@ -19,8 +19,7 @@ const API_ROOT_URL = `${SERVER_TLS ? 'https' : 'http'}://${SERVER_HOSTNAME}:${SE
 const WS_ROOT_URL = `${SERVER_TLS ? 'wss' : 'ws'}://${SERVER_HOSTNAME}:${SERVER_PORT}/ws`
 
 // URL Root path to the client.
-// This MUST match where the client is being hosted by the webserver. This can
-// be overridden at runtime via the SEALOG_ROOT_PATH environment variable.
+// This MUST match where the client is being hosted by the webserver.
 // Change this if not hosting the client at the webserver's document root
 // i.e. '/sealog/'
 const ROOT_PATH = '/'
@@ -34,7 +33,7 @@ const RECAPTCHA_SITE_KEY = null
 
 // Text show on the login page to the right of the login form.
 const LOGIN_SCREEN_TXT =
-  'Sealog provides the Oceanographic Research community with an open-source tool for recording, reviewing, and exporting insitu scientific and operational observations.'
+  'Sealog provides the Oceanographic Research community with an open-source tool for recording, reviewing, and exporting in-situ scientific and operational observations.'
 
 // Optional image file shown on login page. Will appear under the
 // LOGIN_SCREEN_TXT. This image must end in ".jpg", "jpeg", ".png" format and
@@ -108,14 +107,18 @@ const EXCLUDE_AUX_DATA_SOURCES = []
 const IMAGES_AUX_DATA_SOURCES = ['framegrabber']
 
 // Optional list defining how to order auxdata data sources in the event
-// history and lowering replay 
+// history and lowering replay
 const AUX_DATA_SORT_ORDER = ['vehicleRealtimeNavData']
 
 // Optional key/value pairs for how to format auxdata data source names in
 // event history and event replay.
-// Format: {<auxdata_datasource>: <display text>}. 
+// Format: {<auxdata_datasource>: <display text>}.
 // i.e. { vehicleRealtimeCTDData: 'Vehicle Realtime CTD Data', ... }
 const AUX_DATA_DATASOURCE_REPLACE = null
+
+// Optional list defining how to order event template categories
+// i.e. ['science','problem','vehicle']
+const CATEGORY_SORT_ORDER = null
 
 module.exports = {
   API_ROOT_URL,
@@ -141,6 +144,6 @@ module.exports = {
   EXCLUDE_AUX_DATA_SOURCES,
   IMAGES_AUX_DATA_SOURCES,
   AUX_DATA_SORT_ORDER,
-  AUX_DATA_DATASOURCE_REPLACE
+  AUX_DATA_DATASOURCE_REPLACE,
+  CATEGORY_SORT_ORDER
 }
-
