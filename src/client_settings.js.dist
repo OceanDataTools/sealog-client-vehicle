@@ -10,7 +10,7 @@ const SERVER_HOSTNAME = typeof window !== 'undefined' && window.location.hostnam
 
 // Set the server port number.
 // Default is 8000.
-const SERVER_PORT = 8000
+const SERVER_PORT = 8100
 
 // Complete URLs for the Sealog Server.
 // This is comprised based on the SERVER_PROTOCOL, SERVER_HOSTNAME and

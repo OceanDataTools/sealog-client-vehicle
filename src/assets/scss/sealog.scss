@@ -62,6 +62,7 @@
     padding-right: .5rem !important;
     padding-bottom: .25rem !important;
     padding-top: .25rem !important;
+    border-bottom: none;
   }
 }
 
@@ -99,6 +100,13 @@
   border: none;
   background-color: transparent;
   text-transform: capitalize;
+}
+
+.event-list-item {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  padding-bottom: 0.125rem !important;
+  padding-top: 0.125rem !important;
 }
 
 // Utility class to hide arrow from dropdown

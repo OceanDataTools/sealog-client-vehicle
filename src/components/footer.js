@@ -56,7 +56,7 @@ class Footer extends Component {
       })
 
       const updateHandler = (update) => {
-        if(this.trackedCustomVars.includes(update.custom_var_name)) {
+        if (this.trackedCustomVars.includes(update.custom_var_name)) {
           const new_state = {}
           new_state[update.custom_var_name] = update.custom_var_value
           this.setState(new_state)

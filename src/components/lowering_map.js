@@ -309,7 +309,6 @@ class LoweringMap extends Component {
         onChange={() => this.toggleASNAP()}
         disabled={this.props.event.fetching}
         label='Hide ASNAP'
-        className='m-0'
       />
     )
 
@@ -333,7 +332,7 @@ class LoweringMap extends Component {
 
   renderEventCard() {
     return (
-      <Card className='mt-2 border-secondary'>
+      <Card className='border-secondary'>
         <Card.Header>{this.renderEventListHeader()}</Card.Header>
         <ListGroup
           variant='flush'
@@ -397,7 +396,7 @@ class LoweringMap extends Component {
           )
 
           return (
-            <ListGroup.Item className='py-1 event-list-item' key={event.id} active={active}>
+            <ListGroup.Item className='event-list-item' key={event.id} active={active}>
               <span
                 onClick={() => this.handleEventClick(index)}
               >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span>
@@ -504,10 +503,12 @@ class LoweringMap extends Component {
         </Row>
         <Row>
           <Col className='px-1 mb-2'>
-            <Card className='event-data-card'>
+            <Card className='event-header-card'>
               <Card.Header>
                 {this.props.event.selected_event.event_value}
-                <span className='float-right'>{this.props.event.selected_event.ts}</span>
+                <span className='float-right'>
+                  {this.props.event.selected_event.event_author} @ {this.props.event.selected_event.ts}
+                </span>
               </Card.Header>
             </Card>
           </Col>
@@ -533,9 +534,13 @@ class LoweringMap extends Component {
             </Card>
           </Col>
         </Row>
-        <Row className='mt-2'>
-          <Col className='px-1 mb-1' md={9} lg={9}>
+        <Row>
+          <Col className='px-1 my-2' xl={12}>
             {this.renderControlsCard()}
+          </Col>
+        </Row>
+        <Row>
+          <Col className='px-1' md={9} lg={9}>
             {this.renderEventCard()}
             <CustomPagination
               className='mt-2'
@@ -545,7 +550,7 @@ class LoweringMap extends Component {
               maxPerPage={maxEventsPerPage}
             />
           </Col>
-          <Col className='px-1 mb-1' md={3} lg={3}>
+          <Col className='px-1' md={3} lg={3}>
             <EventFilterForm
               disabled={this.props.event.fetching}
               hideASNAP={this.props.event.hideASNAP}

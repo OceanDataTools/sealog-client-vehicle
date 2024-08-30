@@ -74,9 +74,7 @@ class EventShowDetailsModal extends Component {
           <Modal size='lg' show={show} onHide={this.props.handleHide}>
             <ImagePreviewModal handleDownload={handle_image_file_download} />
             <Modal.Header className='bg-light pb-0' closeButton>
-              <Modal.Title as="h5">
-                Event Details:
-              </Modal.Title>
+              <Modal.Title as='h5'>Event Details:</Modal.Title>
             </Modal.Header>
             <Modal.Body className='px-4'>
               <Row>
@@ -98,7 +96,7 @@ class EventShowDetailsModal extends Component {
                 <AuxDataCards aux_data={aux_data} lg={4} />
                 <EventOptionsCard event={this.state.event} lg={4} />
                 {event_free_text_card}
-                <EventCommentCard event={this.state.event} lg={4} filter_comment={false}/>
+                <EventCommentCard event={this.state.event} lg={4} filter_comment={false} />
               </Row>
             </Modal.Body>
           </Modal>
