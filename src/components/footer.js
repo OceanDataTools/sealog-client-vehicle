@@ -11,9 +11,12 @@ class Footer extends Component {
   constructor(props) {
     super(props)
 
+    this.trackedCustomVars = ['asnapStatus', 'freeSpaceInBytes', 'freeSpacePercentage']
+
     this.state = {
       asnapStatus: null,
-      freeSpaceInBytes: null
+      freeSpaceInBytes: null,
+      freeSpacePercentage: null
     }
 
     this.client = new Client(`${WS_ROOT_URL}`)
@@ -52,8 +55,12 @@ class Footer extends Component {
         auth: authorizationHeader
       })
 
-      const updateHandler = () => {
-        this.fetchCustomVars()
+      const updateHandler = (update) => {
+        if(this.trackedCustomVars.includes(update.custom_var_name)) {
+          const new_state = {}
+          new_state[update.custom_var_name] = update.custom_var_value
+          this.setState(new_state)
+        }
       }
 
       this.client.subscribe('/ws/status/updateCustomVars', updateHandler)
@@ -65,7 +72,7 @@ class Footer extends Component {
 
   async fetchCustomVars() {
     const query = {
-      name: ['asnapStatus', 'freeSpaceInBytes']
+      name: this.trackedCustomVars
     }
 
     const response = await get_custom_vars(query)
@@ -85,10 +92,10 @@ class Footer extends Component {
       freeSpaceStatus = null
     } else if (this.props.authenticated && this.state.freeSpaceInBytes) {
       let sizeStyle = 'text-danger'
-      if (parseInt(this.state.freeSpaceInBytes) > 10737418240) {
+      if (parseInt(this.state.freeSpacePercentage) < 90) {
         sizeStyle = 'text-warning'
       }
-      if (parseInt(this.state.freeSpaceInBytes) > 21474836480) {
+      if (parseInt(this.state.freeSpacePercentage) < 75) {
         sizeStyle = 'text-success'
       }
       freeSpaceStatus = (

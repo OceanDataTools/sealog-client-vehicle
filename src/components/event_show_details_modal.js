@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import { Row, Col, Card, Modal } from 'react-bootstrap'
 import ImagePreviewModal from './image_preview_modal'
 import AuxDataCards from './aux_data_cards'
+import EventCommentCard from './event_comment_card'
 import EventOptionsCard from './event_options_card'
 import ImageryCards from './imagery_cards'
 import { EXCLUDE_AUX_DATA_SOURCES, IMAGES_AUX_DATA_SOURCES, AUX_DATA_SORT_ORDER } from '../client_settings'
@@ -47,25 +48,16 @@ class EventShowDetailsModal extends Component {
 
   render() {
     const { show, event } = this.props
+
     const event_free_text_card = this.state.event.event_free_text ? (
-      <Col className='px-1 pb-2' xs={12}>
+      <Col className='event-data-col' sm={6} md={4}>
         <Card className='event-data-card'>
-          <Card.Body>Free-form Text: {this.state.event.event_free_text}</Card.Body>
+          <Card.Header>Free-form Text</Card.Header>
+          <Card.Body>{this.state.event.event_free_text}</Card.Body>
         </Card>
       </Col>
     ) : null
-    const event_comment = this.state.event.event_options
-      ? this.state.event.event_options.find(
-          (event_option) => event_option.event_option_name === 'event_comment' && event_option.event_option_value.length > 0
-        )
-      : null
-    const event_comment_card = event_comment ? (
-      <Col className='px-1' xs={12}>
-        <Card className='event-data-card'>
-          <Card.Body>Comment: {event_comment.event_option_value}</Card.Body>
-        </Card>
-      </Col>
-    ) : null
+
     const framegrab_data_sources = this.state.event.aux_data
       ? this.state.event.aux_data.filter((aux_data) => IMAGES_AUX_DATA_SOURCES.includes(aux_data.data_source))
       : []
@@ -81,29 +73,32 @@ class EventShowDetailsModal extends Component {
         return (
           <Modal size='lg' show={show} onHide={this.props.handleHide}>
             <ImagePreviewModal handleDownload={handle_image_file_download} />
-            <Modal.Header className='bg-light' closeButton>
-              <Modal.Title as='h5'>Event Details: {this.state.event.event_value}</Modal.Title>
+            <Modal.Header className='bg-light pb-0' closeButton>
+              <Modal.Title as="h5">
+                Event Details:
+              </Modal.Title>
             </Modal.Header>
-
             <Modal.Body className='px-4'>
               <Row>
                 <Col className='event-data-col' xs={12}>
-                  <Card className='event-data-card'>
-                    <Card.Body>
-                      <span>User: {this.state.event.event_author}</span>
-                      <span className='float-right'>Date: {this.state.event.ts}</span>
-                    </Card.Body>
+                  <Card className='event-header-card'>
+                    <Card.Header>
+                      <span>{this.state.event.event_value}</span>
+                      <span className='float-right'>
+                        {this.state.event.event_author}
+                        {' @ '}
+                        {this.state.event.ts}
+                      </span>
+                    </Card.Header>
                   </Card>
                 </Col>
               </Row>
               <Row>
                 <ImageryCards framegrab_data_sources={framegrab_data_sources} onClick={this.handleImagePreviewModal} lg={4} />
                 <AuxDataCards aux_data={aux_data} lg={4} />
-                <EventOptionsCard event_options={this.state.event.event_options} lg={4} />
-              </Row>
-              <Row>
+                <EventOptionsCard event={this.state.event} lg={4} />
                 {event_free_text_card}
-                {event_comment_card}
+                <EventCommentCard event={this.state.event} lg={4} filter_comment={false}/>
               </Row>
             </Modal.Body>
           </Modal>

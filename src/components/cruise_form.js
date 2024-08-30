@@ -51,6 +51,8 @@ class CruiseForm extends Component {
         .split(',')
         .map((string) => {
           return string.trim()
+        }).filter((tag) => {
+          return (tag !== "")? tag : null
         })
     }
 
@@ -69,6 +71,8 @@ class CruiseForm extends Component {
         .split(',')
         .map((string) => {
           return string.trim()
+        }).filter((tag) => {
+          return (tag !== "")? tag : null
         })
     }
 
@@ -342,22 +346,6 @@ const validate = (formProps) => {
 
   if (!formProps.cruise_additional_meta.cruise_arrival_location) {
     errors.cruise_additional_meta.cruise_arrival_location = 'Required'
-  }
-
-  if (typeof formProps.cruise_tags === 'string') {
-    if (formProps.cruise_tags === '') {
-      formProps.cruise_tags = []
-    } else {
-      formProps.cruise_tags = formProps.cruise_tags.split(',')
-    }
-  }
-
-  if (typeof formProps.cruise_additional_meta.cruise_participants === 'string') {
-    if (formProps.cruise_additional_meta.cruise_participants === '') {
-      formProps.cruise_additional_meta.cruise_participants = []
-    } else {
-      formProps.cruise_additional_meta.cruise_participants = formProps.cruise_additional_meta.cruise_participants.split(',')
-    }
   }
 
   return errors

@@ -55,6 +55,8 @@ class LoweringForm extends Component {
         .split(',')
         .map((string) => {
           return string.trim()
+        }).filter((tag) => {
+          return (tag !== "")? tag : null
         })
     }
 
@@ -265,14 +267,6 @@ const validate = (formProps) => {
   if (formProps.start_ts !== '' && formProps.stop_ts !== '') {
     if (moment(formProps.stop_ts, dateFormat + ' ' + timeFormat).isBefore(moment(formProps.start_ts, dateFormat + ' ' + timeFormat))) {
       errors.stop_ts = 'Stop date must be later than start data'
-    }
-  }
-
-  if (typeof formProps.lowering_tags === 'string') {
-    if (formProps.lowering_tags === '') {
-      formProps.lowering_tags = []
-    } else {
-      formProps.lowering_tags = formProps.lowering_tags.split(',')
     }
   }
 
