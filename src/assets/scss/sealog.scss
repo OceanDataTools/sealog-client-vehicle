@@ -77,7 +77,10 @@
 
   .card-body {
     font-size: .8rem;
-    padding: .5rem;
+    padding-left: .5rem !important;
+    padding-right: .5rem;
+    padding-bottom: .25rem !important;
+    padding-top: .25rem;
 
     .data-name {
       text-transform: capitalize;
