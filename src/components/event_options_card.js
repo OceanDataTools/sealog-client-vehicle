@@ -4,11 +4,11 @@ import { Card, Col } from 'react-bootstrap'
 
 class EventOptionsCard extends Component {
   render() {
-    if (!this.props.event_options) {
+    if (!this.props.event || !this.props.event.event_options) {
       return null
     }
 
-    const return_event_options = this.props.event_options.reduce((filtered, event_option, index) => {
+    const return_event_options = this.props.event.event_options.reduce((filtered, event_option, index) => {
       if (event_option.event_option_name !== 'event_comment') {
         filtered.push(
           <div key={`event_option_${index}`}>
@@ -35,7 +35,7 @@ class EventOptionsCard extends Component {
 }
 
 EventOptionsCard.propTypes = {
-  event_options: PropTypes.array.isRequired,
+  event: PropTypes.object.isRequired,
   sm: PropTypes.number,
   md: PropTypes.number,
   lg: PropTypes.number
