@@ -7,6 +7,7 @@ import Slider, { createSliderWithTooltip } from 'rc-slider'
 import PropTypes from 'prop-types'
 import EventFilterForm from './event_filter_form'
 import AuxDataCards from './aux_data_cards'
+import EventCommentCard from './event_comment_card'
 import EventOptionsCard from './event_options_card'
 import ImageryCards from './imagery_cards'
 import ImagePreviewModal from './image_preview_modal'
@@ -293,7 +294,7 @@ class LoweringReplay extends Component {
 
       const buttons =
         this.props.event.selected_event.ts && !this.props.event.fetching ? (
-          <span className='w-100 text-center'>
+          <span>
             <FontAwesomeIcon
               className='text-primary'
               key={`start_${this.props.lowering.id}`}
@@ -362,7 +363,6 @@ class LoweringReplay extends Component {
         onChange={() => this.toggleASNAP()}
         disabled={this.props.event.fetching}
         label='Hide ASNAP'
-        className='m-0'
       />
     )
 
@@ -427,7 +427,7 @@ class LoweringReplay extends Component {
             this.props.roles && (this.props.roles.includes('event_logger') || this.props.roles.includes('admin')) ? commentTooltip : null
 
           return (
-            <ListGroup.Item className='event-list-item py-1' key={event.id} active={active}>
+            <ListGroup.Item className='event-list-item' key={event.id} active={active}>
               <span
                 onClick={() => this.handleEventClick(index)}
               >{`${event.ts} <${event.event_author}>: ${event.event_value} ${eventOptions}`}</span>
@@ -441,15 +441,15 @@ class LoweringReplay extends Component {
     }
 
     return this.props.event.fetching ? (
-      <ListGroup.Item className='event-list-item py-1'>Loading...</ListGroup.Item>
+      <ListGroup.Item className='event-list-item'>Loading...</ListGroup.Item>
     ) : (
-      <ListGroup.Item className='event-list-item py-1'>No events found</ListGroup.Item>
+      <ListGroup.Item className='event-list-item'>No events found</ListGroup.Item>
     )
   }
 
   renderEventCard() {
     return (
-      <Card className='border-secondary mt-2'>
+      <Card className='border-secondary'>
         <Card.Header>{this.renderEventListHeader()}</Card.Header>
         <ListGroup
           variant='flush'
@@ -470,6 +470,16 @@ class LoweringReplay extends Component {
       this.props.event.selected_event && this.props.event.selected_event.aux_data
         ? this.props.event.selected_event.aux_data.filter((aux_data) => IMAGES_AUX_DATA_SOURCES.includes(aux_data.data_source))
         : []
+
+    const event_free_text_card = this.props.event.selected_event.event_free_text ? (
+      <Col className='event-data-col' sm={6} md={4} lg={3}>
+        <Card className='event-data-card'>
+          <Card.Header>Free-form Text</Card.Header>
+          <Card.Body>{this.props.event.selected_event.event_free_text}</Card.Body>
+        </Card>
+      </Col>
+    ) : null
+
     const aux_data = this.props.event.selected_event.aux_data
       ? this.props.event.selected_event.aux_data.filter((data) => !excludeAuxDataSources.includes(data.data_source))
       : []
@@ -494,10 +504,12 @@ class LoweringReplay extends Component {
         </Row>
         <Row>
           <Col className='px-1 mb-2'>
-            <Card className='event-data-card'>
+            <Card className='event-header-card'>
               <Card.Header>
                 {this.props.event.selected_event.event_value}
-                <span className='float-right'>{this.props.event.selected_event.ts}</span>
+                <span className='float-right'>
+                  {this.props.event.selected_event.event_author} @ {this.props.event.selected_event.ts}
+                </span>
               </Card.Header>
             </Card>
           </Col>
@@ -505,11 +517,17 @@ class LoweringReplay extends Component {
         <Row>
           <ImageryCards framegrab_data_sources={framegrab_data_sources} onClick={this.handleImagePreviewModal} />
           <AuxDataCards aux_data={aux_data} />
-          <EventOptionsCard event_options={this.props.event.selected_event.event_options || []} />
+          <EventOptionsCard event={this.props.event.selected_event} />
+          {event_free_text_card}
+          <EventCommentCard event={this.props.event.selected_event} />
         </Row>
         <Row>
-          <Col className='px-1 mb-1' md={9} lg={9}>
+          <Col className='px-1 my-2' xl={12}>
             {this.renderControlsCard()}
+          </Col>
+        </Row>
+        <Row>
+          <Col className='px-1' md={9} lg={9}>
             {this.renderEventCard()}
             <CustomPagination
               className='mt-2'

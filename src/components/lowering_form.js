@@ -55,8 +55,9 @@ class LoweringForm extends Component {
         .split(',')
         .map((string) => {
           return string.trim()
-        }).filter((tag) => {
-          return (tag !== "")? tag : null
+        })
+        .filter((tag) => {
+          return tag !== '' ? tag : null
         })
     }
 

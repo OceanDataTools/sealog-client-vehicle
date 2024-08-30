@@ -273,7 +273,7 @@ class EventManagement extends Component {
           ) : null
 
         return (
-          <ListGroup.Item className='event-list-item py-1' key={event.id}>
+          <ListGroup.Item className='event-list-item' key={event.id}>
             <span onClick={() => this.handleEventShowDetailsModal(event)}>
               {event.ts} {`<${event.event_author}>`}: {event.event_value} {eventOptions}
             </span>
