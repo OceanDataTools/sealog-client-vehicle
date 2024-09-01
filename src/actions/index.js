@@ -434,7 +434,7 @@ export const fetchEvents = () => {
   }
 }
 
-export const fetchEventTemplates = (sort='event_name') => {
+export const fetchEventTemplates = (sort = 'event_name') => {
   const query = { sort }
 
   return async (dispatch) => {

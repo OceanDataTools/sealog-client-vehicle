@@ -75,7 +75,13 @@ class UserForm extends Component {
               <Form.Row>
                 <Field name='username' component={renderTextField} label='Username' required={true} />
                 <Field name='fullname' component={renderTextField} label='Full Name' required={true} />
-                <Field name='email' component={renderTextField} label='Email' required={true} disabled={this.props.user.id ? true : false} />
+                <Field
+                  name='email'
+                  component={renderTextField}
+                  label='Email'
+                  required={true}
+                  disabled={this.props.user.id ? true : false}
+                />
                 <Field name='password' component={renderTextField} type='password' label='Password' />
                 <Field name='confirmPassword' component={renderTextField} type='password' label='Confirm Password' />
                 <Field name='roles' component={renderCheckboxGroup} label='Roles' options={userRoleOptions} required={true} />

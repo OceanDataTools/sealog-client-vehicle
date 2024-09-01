@@ -22,7 +22,7 @@ import * as mapDispatchToProps from '../actions'
 
 // Set custom theme
 Highcharts.theme = highchartsTheme
-Highcharts.setOptions(Highcharts.theme);
+Highcharts.setOptions(Highcharts.theme)
 
 HighchartsExporting(Highcharts)
 HighchartsNoDataToDisplay(Highcharts)
