@@ -358,7 +358,7 @@ export const deleteLowering = (id) => {
   return async (dispatch, getState) => {
     const response = await delete_lowering(id)
     if (response.success) {
-      if (getState().cruise.cruise.id === id) {
+      if (getState().lowering.lowering.id === id) {
         dispatch(leaveLoweringForm())
       }
       return dispatch(fetchLowerings())
