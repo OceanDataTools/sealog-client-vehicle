@@ -50,7 +50,6 @@ import {
   EVENT_FETCHING,
   FETCH_CRUISES,
   FETCH_EVENT_TEMPLATES,
-  FETCH_EVENT_TEMPLATES_FOR_MAIN,
   FETCH_EVENTS,
   FETCH_FILTERED_EVENTS,
   FETCH_LOWERINGS,
@@ -449,7 +448,7 @@ export const fetchEventTemplatesForMain = () => {
 
   return async (dispatch) => {
     const payload = await get_event_templates(query)
-    return dispatch({ type: FETCH_EVENT_TEMPLATES_FOR_MAIN, payload })
+    return dispatch({ type: FETCH_EVENT_TEMPLATES, payload })
   }
 }
 

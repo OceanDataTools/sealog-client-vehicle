@@ -75,7 +75,7 @@ This will create the `/opt/sealog-client/dist` directory containing the compiled
 #### nginx configuration
 Create a nginx configuration file:
 ```
-sudo pico /etc/nginx/sites-available/sealog.conf 
+sudo pico /etc/nginx/sites-available/sealog 
 ```
 
 Added the following to the configuration file:
@@ -97,8 +97,8 @@ server {
 
 #### Enable the sealog configuration file
 ```
-sudo ln -s /etc/nginx/sites-available/sealog.conf /etc/nginx/sites-enabled/
-sudo rm /etc/nginx/sites-enabled/default.conf
+sudo ln -s /etc/nginx/sites-available/sealog /etc/nginx/sites-enabled/
+sudo rm /etc/nginx/sites-enabled/default
 ```
 
 #### Restart nginx
