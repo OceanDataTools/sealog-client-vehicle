@@ -125,7 +125,7 @@ class EventTemplateList extends Component {
 
   async fetchEventTemplates() {
     this.setState({ fetching: true })
-    await this.props.fetchEventTemplates()
+    await this.props.fetchEventTemplatesForMain()
     this.setState({ fetching: false })
   }
 

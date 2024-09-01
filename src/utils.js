@@ -30,3 +30,53 @@ export const generateRandomCharacters = (length) => {
   }
   return result
 }
+
+export const highchartsTheme = {
+    colors: ['#2A9FD6', '#77B300', '#9933CC', '#FF8800', '#CC0000'],
+    chart: {
+        backgroundColor: '#262626',
+        plotBorderColor: '#555555'
+    },
+    xAxis: {
+        gridLineColor: '#555555',
+        labels: {
+            style: {
+                color: '#E0E0E3'
+            }
+        },
+        lineColor: '#555555',
+        minorGridLineColor: '#505053',
+        tickColor: '#555555',
+        title: {
+            style: {
+                color: '#A0A0A3'
+
+            }
+        }
+    },
+    yAxis: {
+        gridLineColor: '#555555',
+        labels: {
+            style: {
+                color: '#E0E0E3'
+            }
+        },
+        lineColor: '#555555',
+        minorGridLineColor: '#505053',
+        tickColor: '#555555',
+        tickWidth: 1,
+        title: {
+            style: {
+                color: '#A0A0A3'
+            }
+        }
+    },
+    navigation: {
+        buttonOptions: {
+            symbolStroke: '#555555',
+            theme: {
+                fill: '#222222'
+            }
+        }
+    },
+};
