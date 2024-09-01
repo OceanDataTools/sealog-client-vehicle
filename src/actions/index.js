@@ -434,17 +434,8 @@ export const fetchEvents = () => {
   }
 }
 
-export const fetchEventTemplates = () => {
-  return async (dispatch) => {
-    const payload = await get_event_templates()
-    return dispatch({ type: FETCH_EVENT_TEMPLATES, payload })
-  }
-}
-
-export const fetchEventTemplatesForMain = () => {
-  const query = {
-    sort: 'event_name'
-  }
+export const fetchEventTemplates = (sort='event_name') => {
+  const query = { sort }
 
   return async (dispatch) => {
     const payload = await get_event_templates(query)

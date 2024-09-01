@@ -72,11 +72,11 @@ class EventTemplateList extends Component {
       })
 
       const deleteHandler = () => {
-        this.props.fetchEventTemplatesForMain()
+        this.props.fetchEventTemplates()
       }
 
       const updateHandler = () => {
-        this.props.fetchEventTemplatesForMain()
+        this.props.fetchEventTemplates()
       }
 
       this.client.subscribe('/ws/status/newEventTemplates', updateHandler)
@@ -125,7 +125,7 @@ class EventTemplateList extends Component {
 
   async fetchEventTemplates() {
     this.setState({ fetching: true })
-    await this.props.fetchEventTemplatesForMain()
+    await this.props.fetchEventTemplates()
     this.setState({ fetching: false })
   }
 
@@ -243,7 +243,6 @@ EventTemplateList.propTypes = {
   deleteEvent: PropTypes.func.isRequired,
   event_templates: PropTypes.array.isRequired,
   fetchEventTemplates: PropTypes.func.isRequired,
-  fetchEventTemplatesForMain: PropTypes.func.isRequired,
   showModal: PropTypes.func.isRequired,
   style: PropTypes.string,
   updateEvent: PropTypes.func.isRequired
