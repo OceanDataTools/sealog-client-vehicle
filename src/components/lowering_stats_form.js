@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { reduxForm, Field } from 'redux-form'
 import { Button, Col, Form, Row } from 'react-bootstrap'
 import { renderDateTimePicker, renderTextField, dateFormat } from './form_elements'
+import { START_MILESTONE, STOP_MILESTONE, ABORT_MILESTONE, MILESTONES } from '../milestones'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 import * as mapDispatchToProps from '../actions'
@@ -21,37 +22,12 @@ class LoweringStatsForm extends Component {
       : moment.utc(formProps.start_ts).toISOString()
     formProps.stop_ts = formProps.stop_ts._isAMomentObject ? formProps.stop_ts.toISOString() : moment.utc(formProps.stop_ts).toISOString()
 
-    // for (const [key, value] of Object.entries(formProps.milestones)) {
-    //   value && value._isAMomentObject ? value.toISOString() : moment.utc(value).toISOString()
-    // }
-
     Object.keys(formProps.milestones).forEach((milestone) => {
       formProps.milestones[milestone] =
         formProps.milestones[milestone] && formProps.milestones[milestone]._isAMomentObject
           ? formProps.milestones[milestone].toISOString()
           : moment.utc(formProps.milestones[milestone]).toISOString()
     })
-
-    // formProps.milestones.lowering_descending =
-    //   formProps.milestones.lowering_descending && formProps.milestones.lowering_descending._isAMomentObject
-    //   ? formProps.milestones.lowering_descending.toISOString()
-    //   : moment.utc(formProps.milestones.lowering_descending).toISOString()
-    // formProps.milestones.lowering_on_bottom =
-    //   formProps.milestones.lowering_on_bottom && formProps.milestones.lowering_on_bottom._isAMomentObject
-    //     ? formProps.milestones.lowering_on_bottom.toISOString()
-    //     : moment.utc(formProps.milestones.lowering_on_bottom).toISOString()
-    // formProps.milestones.lowering_off_bottom =
-    //   formProps.milestones.lowering_off_bottom && formProps.milestones.lowering_off_bottom._isAMomentObject
-    //     ? formProps.milestones.lowering_off_bottom.toISOString()
-    //     : moment.utc(formProps.milestones.lowering_off_bottom).toISOString()
-    // formProps.milestones.lowering_on_surface =
-    //   formProps.milestones.lowering_on_surface && formProps.milestones.lowering_on_surface._isAMomentObject
-    //     ? formProps.milestones.lowering_on_surface.toISOString()
-    //     : moment.utc(formProps.milestones.lowering_on_surface).toISOString()
-    // formProps.milestones.lowering_aborted =
-    //   formProps.milestones.lowering_aborted && formProps.milestones.lowering_aborted._isAMomentObject
-    //     ? formProps.milestones.lowering_aborted.toISOString()
-    //     : moment.utc(formProps.milestones.lowering_aborted).toISOString()
 
     if (
       (formProps.stats.bounding_box.bbox_north == null || formProps.stats.bounding_box.bbox_north == '') &&
@@ -90,90 +66,54 @@ class LoweringStatsForm extends Component {
       return (
         <Form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
           <Row>
-            <Col className='px-1' sm={6}>
-              <Form.Row className='justify-content-sm-center'>
-                <Field
-                  name='start_ts'
-                  component={renderDateTimePicker}
-                  label='Off Deck Date/Time (UTC)'
-                  required={true}
-                  timeFormat={timeFormat}
-                  sm={11}
-                  md={11}
-                  lg={7}
-                />
-              </Form.Row>
-              <Form.Row className='justify-content-sm-center'>
-                <Field
-                  name='milestones.lowering_descending'
-                  component={renderDateTimePicker}
-                  label='Descending Date/Time (UTC)'
-                  timeFormat={timeFormat}
-                  sm={11}
-                  md={11}
-                  lg={7}
-                />
-              </Form.Row>
-              <Form.Row className='justify-content-sm-center'>
-                <Field
-                  name='milestones.lowering_on_bottom'
-                  component={renderDateTimePicker}
-                  label='On Bottom Date/Time (UTC)'
-                  timeFormat={timeFormat}
-                  sm={11}
-                  md={11}
-                  lg={7}
-                />
-              </Form.Row>
-              <Form.Row className='justify-content-sm-center'>
-                <Field
-                  name='milestones.lowering_off_bottom'
-                  component={renderDateTimePicker}
-                  label='Off Bottom Date/Time (UTC)'
-                  timeFormat={timeFormat}
-                  sm={11}
-                  md={11}
-                  lg={7}
-                />
-              </Form.Row>
-              <Form.Row className='justify-content-sm-center'>
-                <Field
-                  name='milestones.lowering_on_surface'
-                  component={renderDateTimePicker}
-                  label='On Surface Date/Time (UTC)'
-                  timeFormat={timeFormat}
-                  sm={11}
-                  md={11}
-                  lg={7}
-                />
-              </Form.Row>
-              <Form.Row className='justify-content-sm-center'>
-                <Field
-                  name='stop_ts'
-                  component={renderDateTimePicker}
-                  label='On Deck/Stop Date/Time (UTC)'
-                  required={true}
-                  timeFormat={timeFormat}
-                  sm={11}
-                  md={11}
-                  lg={7}
-                />
-              </Form.Row>
-              <Form.Row className='justify-content-sm-center'>
-                <Field
-                  name='milestones.lowering_aborted'
-                  component={renderDateTimePicker}
-                  label='Aborted Date/Time (UTC)'
-                  timeFormat={timeFormat}
-                  sm={11}
-                  md={11}
-                  lg={7}
-                />
-              </Form.Row>
+            <Col sm={6}>
+              <div>
+                <strong style={{ fontSize: 'large' }}>Milestones</strong>
+              </div>
+              <Field
+                name='start_ts'
+                key='milestones.start_ts'
+                component={renderDateTimePicker}
+                label={START_MILESTONE.label}
+                required={true}
+                timeFormat={timeFormat}
+                lg={8}
+              />
+              {MILESTONES.map((milestone) => {
+                return (
+                  <Field
+                    name={'milestones.' + milestone.name}
+                    key={milestone.name}
+                    component={renderDateTimePicker}
+                    label={milestone.label}
+                    timeFormat={timeFormat}
+                    lg={8}
+                  />
+                )
+              })}
+              <Field
+                name='stop_ts'
+                key='milestone.stop_ts'
+                component={renderDateTimePicker}
+                label={STOP_MILESTONE.label}
+                required={true}
+                timeFormat={timeFormat}
+                lg={8}
+              />
+              <Field
+                name={'milestones.' + ABORT_MILESTONE.name}
+                component={renderDateTimePicker}
+                label={ABORT_MILESTONE.label}
+                timeFormat={timeFormat}
+                lg={8}
+              />
             </Col>
-            <Col className='px-1' sm={6}>
+            <Col sm={6}>
+              <div>
+                <strong style={{ fontSize: 'large' }}>Stats</strong>
+              </div>
               <Form.Row className='justify-content-sm-center'>
-                <Field name='stats.max_depth' component={renderTextField} label='Max Depth' placeholder='in meters' lg={5} md={7} sm={7} />
+                <Field name='stats.max_depth' component={renderTextField} label='Max Depth' placeholder='in meters' lg={5} md={6} />
               </Form.Row>
               <Form.Row className='justify-content-sm-center'>
                 <Field name='stats.bounding_box.bbox_north' component={renderTextField} label='North' placeholder='in ddeg' lg={5} md={6} />
@@ -221,6 +161,50 @@ LoweringStatsForm.propTypes = {
 const validate = (formProps) => {
   const errors = { milestones: {}, stats: {} }
 
+  function extractMilestoneTS(milestones) {
+    const milestone_names = milestones.map((milestone) => milestone.name)
+    return milestone_names.map((milestone_name) =>
+      Object.prototype.hasOwnProperty.call(formProps.milestones, milestone_name) ? formProps.milestones[milestone_name] : null
+    )
+  }
+
+  function areDatetimesSequential(dates) {
+    function findNextValidIndex(arr, startIndex) {
+      for (let i = startIndex + 1; i < arr.length; i++) {
+        if (arr[i].isValid()) {
+          return i
+        }
+      }
+      return -1 // Return -1 if no valid element is found
+    }
+
+    let milestones = {}
+    const dateObjects = dates.map((dateStr) => moment.utc(dateStr, dateFormat + ' ' + timeFormat))
+
+    for (let i = 0; i < dateObjects.length - 1; ) {
+      const nextIndex = findNextValidIndex(dateObjects, i)
+      if (moment(dateObjects[i]).isAfter(dateObjects[findNextValidIndex(dateObjects, i)])) {
+        milestones[MILESTONES[i].name] = 'This milestone is out of sequence.'
+        return milestones
+      }
+      i = nextIndex
+    }
+    return milestones
+  }
+
+  function areDatetimesContained(dates, start, stop) {
+    let milestones = {}
+    // const dateObjects = dates.map(dateStr => moment.utc(dateStr, dateFormat + ' ' + timeFormat));
+
+    for (let i = 0; i < dates.length; i++) {
+      if (dates[i] && dates[i] !== '' && !moment(dates[i]).isBetween(start, stop)) {
+        milestones[MILESTONES[i].name] = 'This milestone is outside of start/stop timestamps.'
+        return milestones
+      }
+    }
+    return milestones
+  }
+
   if (formProps.start_ts === '') {
     errors.start_ts = 'Required'
   } else if (!moment.utc(formProps.start_ts).isValid()) {
@@ -233,76 +217,21 @@ const validate = (formProps) => {
     errors.stop_ts = 'Invalid timestamp'
   }
 
+  let dates = extractMilestoneTS(MILESTONES)
+  errors.milestones = { ...errors.milestones, ...areDatetimesSequential(dates) }
+
   if (formProps.start_ts !== '' && formProps.stop_ts !== '') {
-    if (
-      moment.utc(formProps.stop_ts, dateFormat + ' ' + timeFormat).isBefore(moment.utc(formProps.start_ts, dateFormat + ' ' + timeFormat))
-    ) {
-      errors.stop_ts = 'Stop date must be later than start date'
+    if (moment(formProps.stop_ts).isBefore(formProps.start_ts)) {
+      errors.stop_ts = 'Stop timestamp must be later than start timestamp'
     }
-  }
 
-  if (
-    formProps.milestones.lowering_off_bottom &&
-    formProps.milestones.lowering_off_bottom !== '' &&
-    moment.utc(formProps.stop_ts, dateFormat + ' ' + timeFormat).isBefore(moment.utc(formProps.stop_ts, dateFormat + ' ' + timeFormat))
-  ) {
-    errors.milestones.lowering_off_bottom = 'Off bottom date must be before stop date'
-  }
-
-  if (
-    formProps.milestones.lowering_on_surface &&
-    formProps.milestones.lowering_on_surface !== '' &&
-    moment
-      .utc(formProps.milestones.lowering_on_surface, dateFormat + ' ' + timeFormat)
-      .isBefore(moment.utc(formProps.milestones.lowering_off_bottom, dateFormat + ' ' + timeFormat))
-  ) {
-    errors.milestones.lowering_on_surface = 'On surface date must be after off bottom date'
-  }
-
-  if (
-    formProps.milestones.lowering_off_bottom &&
-    formProps.milestones.lowering_off_bottom !== '' &&
-    moment
-      .utc(formProps.milestones.lowering_off_bottom, dateFormat + ' ' + timeFormat)
-      .isBefore(moment.utc(formProps.milestones.lowering_on_bottom, dateFormat + ' ' + timeFormat))
-  ) {
-    errors.milestones.lowering_off_bottom = 'Off bottom date must be after on bottom date'
-  }
-
-  if (
-    formProps.milestones.lowering_on_bottom &&
-    formProps.milestones.lowering_on_bottom !== '' &&
-    moment
-      .utc(formProps.milestones.lowering_on_bottom, dateFormat + ' ' + timeFormat)
-      .isBefore(moment.utc(formProps.milestones.lowering_descending, dateFormat + ' ' + timeFormat))
-  ) {
-    errors.milestones.lowering_on_bottom = 'On bottom date must be after descending date'
-  }
-
-  if (
-    formProps.milestones.lowering_descending &&
-    formProps.milestones.lowering_descending !== '' &&
-    moment
-      .utc(formProps.milestones.lowering_descending, dateFormat + ' ' + timeFormat)
-      .isBefore(moment.utc(formProps.start, dateFormat + ' ' + timeFormat))
-  ) {
-    errors.milestones.lowering_descending = 'Descending date must be after off_deck date'
-  }
-
-  if (
-    formProps.milestones.lowering_on_bottom &&
-    formProps.milestones.lowering_on_bottom !== '' &&
-    formProps.milestones.lowering_off_bottom &&
-    formProps.milestones.lowering_off_bottom !== ''
-  ) {
-    if (
-      moment
-        .utc(formProps.milestones.lowering_off_bottom, dateFormat + ' ' + timeFormat)
-        .isBefore(moment.utc(formProps.milestones.lowering_on_bottom, dateFormat + ' ' + timeFormat))
-    ) {
-      errors.milestones.lowering_on_bottom = 'Off bottom date must be later than on bottom date'
-      errors.milestones.lowering_off_bottom = 'Off bottom date must be later than on bottom date'
+    if (formProps.milestones[ABORT_MILESTONE.name] && formProps.milestones[ABORT_MILESTONE.name] !== '') {
+      if (!moment(formProps.milestones[ABORT_MILESTONE.name]).isBetween(formProps.start_ts, formProps.stop_ts)) {
+        errors.milestones[ABORT_MILESTONE.name] = 'Abort timestamp must be between start and stop timestamps'
+      }
     }
+
+    errors.milestones = { ...errors.milestones, ...areDatetimesContained(dates, formProps.start_ts, formProps.stop_ts) }
   }
 
   if (!(formProps.stats.max_depth >= 0)) {

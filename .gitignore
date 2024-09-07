@@ -24,8 +24,11 @@ node_modules/
 # CLient Config
 /src/client_settings.js
 
-# Maptime Config
+# Maptile Config
 /src/map_tilelayers.js
+
+# Milestone Config
+/src/milestones.js
 
 # Docker-related files
 Dockerfile

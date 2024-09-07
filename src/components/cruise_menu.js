@@ -9,6 +9,7 @@ import CopyCruiseToClipboard from './copy_cruise_to_clipboard'
 import CopyLoweringToClipboard from './copy_lowering_to_clipboard'
 import { MAIN_SCREEN_HEADER, MAIN_SCREEN_TXT } from '../client_settings'
 import { handle_cruise_file_download, handle_lowering_file_download } from '../api'
+import { ABORT_MILESTONE, LOWERING_ASCENT, LOWERING_DESCENT } from '../milestones'
 import { _Cruise_, _cruises_, _Lowering_, _Lowerings_ } from '../vocab'
 import * as mapDispatchToProps from '../actions'
 
@@ -328,29 +329,29 @@ class CruiseMenu extends Component {
       let loweringStartTime = moment.utc(this.state.activeLowering.start_ts)
       let loweringDescendingTime =
         this.state.activeLowering.lowering_additional_meta.milestones &&
-        this.state.activeLowering.lowering_additional_meta.milestones.lowering_descending
-          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones.lowering_descending)
+        this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]
+          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]])
           : null
       let loweringOnBottomTime =
         this.state.activeLowering.lowering_additional_meta.milestones &&
-        this.state.activeLowering.lowering_additional_meta.milestones.lowering_on_bottom
-          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones.lowering_on_bottom)
+        this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]]
+          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]])
           : null
       let loweringOffBottomTime =
         this.state.activeLowering.lowering_additional_meta.milestones &&
-        this.state.activeLowering.lowering_additional_meta.milestones.lowering_off_bottom
-          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones.lowering_off_bottom)
+        this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]]
+          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]])
           : null
       let loweringOnSurfaceTime =
         this.state.activeLowering.lowering_additional_meta.milestones &&
-        this.state.activeLowering.lowering_additional_meta.milestones.lowering_on_surface
-          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones.lowering_on_surface)
+        this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]
+          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]])
           : null
       let loweringStopTime = moment.utc(this.state.activeLowering.stop_ts)
       let loweringAbortTime =
         this.state.activeLowering.lowering_additional_meta.milestones &&
-        this.state.activeLowering.lowering_additional_meta.milestones.lowering_aborted
-          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones.lowering_aborted)
+        this.state.activeLowering.lowering_additional_meta.milestones[ABORT_MILESTONE.name]
+          ? moment.utc(this.state.activeLowering.lowering_additional_meta.milestones[ABORT_MILESTONE.name])
           : null
 
       let deck2DeckDurationValue = loweringStopTime.diff(loweringStartTime)
@@ -366,10 +367,9 @@ class CruiseMenu extends Component {
         </p>
       ) : null
       let loweringLocation = this.state.activeLowering.lowering_location ? (
-        <span>
+        <p>
           <strong>Location:</strong> {this.state.activeLowering.lowering_location}
-          <br />
-        </span>
+        </p>
       ) : null
       let loweringStarted = (
         <span>

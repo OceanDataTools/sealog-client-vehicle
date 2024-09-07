@@ -1,0 +1,43 @@
+const START_MILESTONE = {
+  label: 'Off Deck'
+}
+
+const STOP_MILESTONE = {
+  label: 'On Deck'
+}
+
+const ABORT_MILESTONE = {
+  name: 'lowering_aborted',
+  label: 'Aborted'
+}
+
+const MILESTONES = [
+  {
+    name: 'lowering_descending',
+    label: 'Descending'
+  },
+  {
+    name: 'lowering_on_bottom',
+    label: 'On Bottom'
+  },
+  {
+    name: 'lowering_off_bottom',
+    label: 'Off Bottom'
+  },
+  {
+    name: 'lowering_on_surface',
+    label: 'On Surface'
+  }
+]
+
+const LOWERING_DESCENT = ['lowering_descending', 'lowering_on_bottom']
+const LOWERING_ASCENT = ['lowering_off_bottom', 'lowering_on_surface']
+
+module.exports = {
+  START_MILESTONE,
+  STOP_MILESTONE,
+  ABORT_MILESTONE,
+  MILESTONES,
+  LOWERING_DESCENT,
+  LOWERING_ASCENT
+}
