@@ -16,13 +16,14 @@ import { renderAlert, renderMessage } from './form_elements'
 import { highchartsTheme } from '../utils'
 import LoweringStatsForm from './lowering_stats_form'
 import { DEFAULT_LOCATION, TILE_LAYERS } from '../map_tilelayers'
+import { START_MILESTONE, STOP_MILESTONE, ABORT_MILESTONE, MILESTONES, LOWERING_ASCENT, LOWERING_DESCENT } from '../milestones'
 import { POSITION_DATASOURCES } from '../client_settings'
 import { get_event_exports_by_lowering } from '../api'
 import * as mapDispatchToProps from '../actions'
 
 // Set custom theme
 Highcharts.theme = highchartsTheme
-Highcharts.setOptions(Highcharts.theme);
+Highcharts.setOptions(Highcharts.theme)
 
 HighchartsExporting(Highcharts)
 HighchartsNoDataToDisplay(Highcharts)
@@ -52,32 +53,32 @@ class LoweringStatsModal extends Component {
 
       milestone_to_edit: null,
       milestones: {
-        lowering_start: this.props.lowering.start_ts,
+        start_ts: this.props.lowering.start_ts,
         lowering_descending:
           this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones.lowering_descending
-            ? this.props.lowering.lowering_additional_meta.milestones.lowering_descending
+          this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]
+            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]
             : null,
         lowering_on_bottom:
           this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom
-            ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom
+          this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]]
+            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]]
             : null,
         lowering_off_bottom:
           this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom
-            ? this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom
+          this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]]
+            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]]
             : null,
         lowering_on_surface:
           this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones.lowering_on_surface
-            ? this.props.lowering.lowering_additional_meta.milestones.lowering_on_surface
+          this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]
+            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]
             : null,
-        lowering_stop: this.props.lowering.stop_ts,
+        stop_ts: this.props.lowering.stop_ts,
         lowering_aborted:
           this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones.lowering_aborted
-            ? this.props.lowering.lowering_additional_meta.milestones.lowering_aborted
+          this.props.lowering.lowering_additional_meta.milestones[ABORT_MILESTONE.name]
+            ? this.props.lowering.lowering_additional_meta.milestones[ABORT_MILESTONE.name]
             : null
       },
       stats: {
@@ -271,8 +272,8 @@ class LoweringStatsModal extends Component {
     this.setState({
       milestones: {
         ...formProps.lowering_additional_meta.milestones,
-        lowering_start: formProps.start_ts,
-        lowering_stop: formProps.stop_ts
+        start_ts: formProps.start_ts,
+        stop_ts: formProps.stop_ts
       },
       stats: formProps.lowering_additional_meta.stats,
       touched: false,
@@ -321,8 +322,8 @@ class LoweringStatsModal extends Component {
 
   handleUpdateLowering() {
     const newMilestones = { ...this.state.milestones }
-    delete newMilestones.lowering_start
-    delete newMilestones.lowering_stop
+    delete newMilestones.start_ts
+    delete newMilestones.stop_ts
 
     const newLoweringAdditionalMeta = {
       ...this.props.lowering.lowering_additional_meta,
@@ -332,8 +333,8 @@ class LoweringStatsModal extends Component {
 
     const newLoweringRecord = {
       ...this.props.lowering,
-      start_ts: this.state.milestones.lowering_start,
-      stop_ts: this.state.milestones.lowering_stop,
+      start_ts: this.state.milestones.start_ts,
+      stop_ts: this.state.milestones.stop_ts,
       lowering_additional_meta: newLoweringAdditionalMeta
     }
 
@@ -464,79 +465,53 @@ class LoweringStatsModal extends Component {
     ) : (
       [
         <Col key='milestones' md={6}>
-          <div>
-            <span
-              className={this.state.milestone_to_edit == 'lowering_start' ? 'text-warning' : ''}
-              onClick={() => this.setMilestoneToEdit('lowering_start')}
-            >
-              Off Deck: {this.state.milestones.lowering_start}
-            </span>
-            <br />
-            <span
-              className={this.state.milestone_to_edit == 'lowering_descending' ? 'text-warning' : ''}
-              onClick={() => this.setMilestoneToEdit('lowering_descending')}
-            >
-              Descending: {this.state.milestones.lowering_descending}
-            </span>
-            <br />
-            <span
-              className={this.state.milestone_to_edit == 'lowering_on_bottom' ? 'text-warning' : ''}
-              onClick={() => this.setMilestoneToEdit('lowering_on_bottom')}
-            >
-              On Bottom: {this.state.milestones.lowering_on_bottom}
-            </span>
-            <br />
-            <span
-              className={this.state.milestone_to_edit == 'lowering_off_bottom' ? 'text-warning' : ''}
-              onClick={() => this.setMilestoneToEdit('lowering_off_bottom')}
-            >
-              Off Bottom: {this.state.milestones.lowering_off_bottom}
-            </span>
-            <br />
-            <span
-              className={this.state.milestone_to_edit == 'lowering_on_surface' ? 'text-warning' : ''}
-              onClick={() => this.setMilestoneToEdit('lowering_on_surface')}
-            >
-              On Surface: {this.state.milestones.lowering_on_surface}
-            </span>
-            <br />
-            <span
-              className={this.state.milestone_to_edit == 'lowering_stop' ? 'text-warning' : ''}
-              onClick={() => this.setMilestoneToEdit('lowering_stop')}
-            >
-              On Deck: {this.state.milestones.lowering_stop}
-            </span>
-            <br />
-            <span
-              className={this.state.milestone_to_edit == 'lowering_aborted' ? 'text-warning' : ''}
-              onClick={() => this.setMilestoneToEdit('lowering_aborted')}
-            >
-              Aborted: {this.state.milestones.lowering_aborted}
-            </span>
+          <strong style={{ fontSize: 'large' }}>Milestones</strong>
+          <div
+            className={this.state.milestone_to_edit == 'start_ts' ? 'text-warning' : ''}
+            onClick={() => this.setMilestoneToEdit('start_ts')}
+          >
+            <strong>{START_MILESTONE.label}</strong>: {this.state.milestones['start_ts']}
+          </div>
+          {MILESTONES.map((milestone) => {
+            return (
+              <div
+                key={milestone.name}
+                className={this.state.milestone_to_edit == milestone.name ? 'text-warning' : ''}
+                onClick={() => this.setMilestoneToEdit(milestone.name)}
+              >
+                <strong>{milestone.label}</strong>: {this.state.milestones[milestone.name]}
+              </div>
+            )
+          })}
+          <div
+            className={this.state.milestone_to_edit == 'stop_ts' ? 'text-warning' : ''}
+            onClick={() => this.setMilestoneToEdit('stop_ts')}
+          >
+            <strong>{STOP_MILESTONE.label}</strong>: {this.state.milestones['stop_ts']}
+          </div>
+          <div
+            className={this.state.milestone_to_edit == ABORT_MILESTONE.name ? 'text-warning' : ''}
+            onClick={() => this.setMilestoneToEdit(ABORT_MILESTONE.name)}
+          >
+            <strong>{ABORT_MILESTONE.label}</strong>: {this.state.milestones[ABORT_MILESTONE.name]}
           </div>
         </Col>,
         <Col key='stats' md={6}>
+          <strong style={{ fontSize: 'large' }}>Stats</strong>
           <div>
-            <span>
-              Max Depth: {this.state.stats.max_depth}{' '}
-              <OverlayTrigger
-                placement='top'
-                overlay={<Tooltip id='maxDepthTooltip'>Click to calculate max depth from depth data.</Tooltip>}
-              >
-                <FontAwesomeIcon className='text-primary' onClick={() => this.handleCalculateMaxDepth()} icon='calculator' fixedWidth />
-              </OverlayTrigger>
-            </span>
-            <br />
-            <span>
-              Bounding Box: {this.state.stats.bounding_box ? this.state.stats.bounding_box.join(', ') : ''}{' '}
-              <OverlayTrigger
-                placement='top'
-                overlay={<Tooltip id='boundingBoxTooltip'>Click to calculate the bounding box from position data.</Tooltip>}
-              >
-                <FontAwesomeIcon className='text-primary' onClick={() => this.handleCalculateBoundingBox()} icon='calculator' fixedWidth />
-              </OverlayTrigger>
-            </span>
-            <br />
+            <strong>Max Depth:</strong> {this.state.stats.max_depth}{' '}
+            <OverlayTrigger placement='top' overlay={<Tooltip id='maxDepthTooltip'>Click to calculate max depth from depth data.</Tooltip>}>
+              <FontAwesomeIcon className='text-primary' onClick={() => this.handleCalculateMaxDepth()} icon='calculator' fixedWidth />
+            </OverlayTrigger>
+          </div>
+          <div>
+            <strong>Bounding Box:</strong> {this.state.stats.bounding_box ? this.state.stats.bounding_box.join(', ') : ''}{' '}
+            <OverlayTrigger
+              placement='top'
+              overlay={<Tooltip id='boundingBoxTooltip'>Click to calculate the bounding box from position data.</Tooltip>}
+            >
+              <FontAwesomeIcon className='text-primary' onClick={() => this.handleCalculateBoundingBox()} icon='calculator' fixedWidth />
+            </OverlayTrigger>
           </div>
         </Col>
       ]

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import * as mapDispatchToProps from '../actions'
+import { ABORT_MILESTONE, LOWERING_ASCENT, LOWERING_DESCENT } from '../milestones'
 import { _Lowering_ } from '../vocab'
 
 class CopyLoweringToClipboard extends Component {
@@ -33,28 +34,29 @@ class CopyLoweringToClipboard extends Component {
       let loweringStartTime = moment.utc(this.props.lowering.start_ts)
       let loweringDescendingTime =
         this.props.lowering.lowering_additional_meta.milestones &&
-        this.props.lowering.lowering_additional_meta.milestones.lowering_descending
-          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones.lowering_descending)
+        this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]
+          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]])
           : null
       let loweringOnBottomTime =
         this.props.lowering.lowering_additional_meta.milestones &&
-        this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom
-          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom)
+        this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]]
+          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]])
           : null
       let loweringOffBottomTime =
         this.props.lowering.lowering_additional_meta.milestones &&
-        this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom
-          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom)
+        this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]]
+          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]])
           : null
       let loweringOnSurfaceTime =
         this.props.lowering.lowering_additional_meta.milestones &&
-        this.props.lowering.lowering_additional_meta.milestones.lowering_on_surface
-          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones.lowering_on_surface)
+        this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]
+          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]])
           : null
       let loweringStopTime = moment.utc(this.props.lowering.stop_ts)
       let loweringAbortTime =
-        this.props.lowering.lowering_additional_meta.milestones && this.props.lowering.lowering_additional_meta.milestones.lowering_aborted
-          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones.lowering_aborted)
+        this.props.lowering.lowering_additional_meta.milestones &&
+        this.props.lowering.lowering_additional_meta.milestones[ABORT_MILESTONE.name]
+          ? moment.utc(this.props.lowering.lowering_additional_meta.milestones[ABORT_MILESTONE.name])
           : null
 
       let deck2DeckDurationValue = loweringStartTime && loweringStopTime ? loweringStopTime.diff(loweringStartTime) : null
@@ -70,22 +72,23 @@ class CopyLoweringToClipboard extends Component {
       text += this.props.lowering.lowering_additional_meta.lowering_description
         ? `Description: ${this.props.lowering.lowering_additional_meta.lowering_description}\n`
         : ''
+      text += '\n'
       text += `Location: ${this.props.lowering.lowering_location}\n`
       text += '\n'
       text += `Start of ${_Lowering_}:${' '.repeat(9 - _Lowering_.length)}${this.props.lowering.start_ts}\n`
       text += loweringDescendingTime
-        ? `Descending:        ${this.props.lowering.lowering_additional_meta.milestones.lowering_descending}\n`
+        ? `Descending:        ${this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]}\n`
         : ''
       text += loweringOnBottomTime
-        ? `On Bottom:         ${this.props.lowering.lowering_additional_meta.milestones.lowering_on_bottom}\n`
+        ? `On Bottom:         ${this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]]}\n`
         : ''
       text += loweringOffBottomTime
-        ? `Off Bottom:        ${this.props.lowering.lowering_additional_meta.milestones.lowering_off_bottom}\n`
+        ? `Off Bottom:        ${this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]]}\n`
         : ''
       text += loweringOnSurfaceTime
-        ? `On Surface:        ${this.props.lowering.lowering_additional_meta.milestones.lowering_on_surface}\n`
+        ? `On Surface:        ${this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]}\n`
         : ''
-      text += `On Deck:           ${this.props.lowering.stop_ts}\n`
+      text += `End of ${_Lowering_}:${' '.repeat(11 - _Lowering_.length)}${this.props.lowering.stop_ts}\n`
       text += '\n'
       text += deck2DeckDurationValue
         ? `Deck-to-Deck: ${moment.duration(deck2DeckDurationValue).format('d [days] h [hours] m [minutes]')}\n`
