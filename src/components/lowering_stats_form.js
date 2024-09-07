@@ -183,7 +183,12 @@ const validate = (formProps) => {
 
     for (let i = 0; i < dateObjects.length - 1; ) {
       const nextIndex = findNextValidIndex(dateObjects, i)
-      if (moment(dateObjects[i]).isAfter(dateObjects[findNextValidIndex(dateObjects, i)])) {
+      if(nextIndex < 0) {
+        i++
+        continue
+      }
+
+      if (moment(dateObjects[i]).isAfter(dateObjects[nextIndex])) {
         milestones[MILESTONES[i].name] = 'This milestone is out of sequence.'
         return milestones
       }
