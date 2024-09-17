@@ -51,16 +51,12 @@ class LoweringStatsForm extends Component {
       stats: formProps.stats
     }
 
-    const updated_lowering = {
+    this.props.handleFormSubmit({
       ...this.props.lowering,
       start_ts: formProps.start_ts,
       stop_ts: formProps.stop_ts,
       lowering_additional_meta
-    }
-
-    delete updated_lowering.lowering_additional_meta.lowering_files
-
-    this.props.handleFormSubmit(updated_lowering)
+    })
   }
 
   render() {
