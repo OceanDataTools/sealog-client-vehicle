@@ -168,7 +168,7 @@ class CruiseMenu extends Component {
     let output = files.map((file, index) => {
       return (
         <div className='pl-2' key={`file_${index}`}>
-          <a className='text-decoration-none' href='#' onClick={() => handle_cruise_file_download(file)}>
+          <a className='text-decoration-none' href='#' onClick={() => handle_cruise_file_download(file, this.state.activeCruise.id)}>
             {file}
           </a>
         </div>
@@ -181,7 +181,7 @@ class CruiseMenu extends Component {
     let output = files.map((file, index) => {
       return (
         <div className='pl-2' key={`file_${index}`}>
-          <a className='text-decoration-none' href='#' onClick={() => handle_lowering_file_download(file)}>
+          <a className='text-decoration-none' href='#' onClick={() => handle_lowering_file_download(file, this.state.activeLowering.id)}>
             {file}
           </a>
         </div>
