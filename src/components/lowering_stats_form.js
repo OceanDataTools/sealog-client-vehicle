@@ -51,6 +51,8 @@ class LoweringStatsForm extends Component {
       stats: formProps.stats
     }
 
+    delete lowering_additional_meta.lowering_files
+
     this.props.handleFormSubmit({
       ...this.props.lowering,
       start_ts: formProps.start_ts,
