@@ -8,7 +8,6 @@ import LoweringGalleryTab from './lowering_gallery_tab'
 import LoweringModeDropdown from './lowering_mode_dropdown'
 import { get_event_aux_data_by_lowering } from '../api'
 import { IMAGES_AUX_DATA_SOURCES } from '../client_settings'
-import { getImageUrl } from '../utils'
 import { _Lowerings_ } from '../vocab'
 import * as mapDispatchToProps from '../actions'
 
@@ -21,6 +20,8 @@ class LoweringGallery extends Component {
       aux_data: [],
       maxImagesPerPage: 16
     }
+
+    this.formRef = React.createRef() // Reference to the slider
 
     this.handleImageCountChange = this.handleImageCountChange.bind(this)
     this.handleLoweringModeSelect = this.handleLoweringModeSelect.bind(this)
@@ -64,7 +65,7 @@ class LoweringGallery extends Component {
 
         image_data[data.data_array[i].data_value].images.push({
           event_id: data.event_id,
-          filepath: getImageUrl(data.data_array[i + 1].data_value)
+          filepath: data.data_array[i + 1].data_value
         })
       }
     })
@@ -74,15 +75,20 @@ class LoweringGallery extends Component {
 
   handleImageCountChange(event) {
     this.setState({ maxImagesPerPage: parseInt(event.target.value) })
+    event.currentTarget.blur()
   }
 
   handleLoweringModeSelect(mode) {
-    if (mode === 'Gallery') {
-      this.props.gotoLoweringGallery(this.props.match.params.id)
-    } else if (mode === 'Map') {
+    if (mode === 'Map') {
       this.props.gotoLoweringMap(this.props.match.params.id)
     } else if (mode === 'Replay') {
       this.props.gotoLoweringReplay(this.props.match.params.id)
+    }
+  }
+
+  handleTabSelect(key, event) {
+    if (event) {
+      event.currentTarget.blur()
     }
   }
 
@@ -97,7 +103,15 @@ class LoweringGallery extends Component {
     }
 
     return galleries.length ? (
-      <Tabs className='category-tab' variant='pills' transition={false} id='galleries' mountOnEnter={true} unmountOnExit={true}>
+      <Tabs
+        className='category-tab'
+        variant='pills'
+        transition={false}
+        id='galleries'
+        mountOnEnter={true}
+        unmountOnExit={true}
+        onSelect={this.handleTabSelect}
+      >
         {galleries}
       </Tabs>
     ) : (
@@ -143,9 +157,9 @@ class LoweringGallery extends Component {
             <FontAwesomeIcon icon='chevron-right' fixedWidth />
             <span className='text-warning'>{this.props.lowering.lowering_id || 'Loading...'}</span>
             <FontAwesomeIcon icon='chevron-right' fixedWidth />
-            <LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={'Gallery'} modes={['Replay', 'Review', 'Map']} />
+            <LoweringModeDropdown onClick={this.handleLoweringModeSelect} active_mode={'Gallery'} modes={['Replay', 'Map']} />
           </ButtonToolbar>
-          <span className='float-right'>
+          <span className='float-right' ref={this.formRef}>
             <Form style={{ marginTop: '-4px' }} className='float-right' inline>
               <Form.Group controlId='selectMaxImagesPerPage'>
                 <Form.Control size='sm' as='select' onChange={this.handleImageCountChange}>
@@ -170,7 +184,6 @@ LoweringGallery.propTypes = {
   event: PropTypes.object.isRequired,
   eventUpdateLoweringReplay: PropTypes.func.isRequired,
   gotoCruiseMenu: PropTypes.func.isRequired,
-  gotoLoweringGallery: PropTypes.func.isRequired,
   gotoLoweringMap: PropTypes.func.isRequired,
   gotoLoweringReplay: PropTypes.func.isRequired,
   initLowering: PropTypes.func.isRequired,
