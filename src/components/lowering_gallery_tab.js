@@ -3,40 +3,67 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Row, Col, Card, Image } from 'react-bootstrap'
 import CustomPagination from './custom_pagination'
-import { handleMissingImage } from '../utils'
+import { getImageUrl, handleMissingImage } from '../utils'
 import * as mapDispatchToProps from '../actions'
 
 class LoweringGalleryTab extends Component {
   constructor(props) {
     super(props)
 
-    this.divFocus = null
-
     this.state = {
-      activePage: 1
+      activePage: 1,
+      selectedPage: 1,
+      paginationTimer: null
     }
 
     this.handlePageSelect = this.handlePageSelect.bind(this)
-    this.handleKeyPress = this.handleKeyPress.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
   }
 
   componentDidMount() {
-    this.divFocus.focus()
+    document.addEventListener('keydown', this.handleKeyDown)
   }
 
-  handleKeyPress(event) {
-    if (
-      event.key === 'ArrowRight' &&
-      this.state.activePage < Math.ceil(this.props.imagesData.images.length / this.props.maxImagesPerPage)
-    ) {
-      this.handlePageSelect(this.state.activePage + 1)
-    } else if (event.key === 'ArrowLeft' && this.state.activePage > 1) {
-      this.handlePageSelect(this.state.activePage - 1)
+  componentDidUpdate(prevProps) {
+    if (prevProps.maxImagesPerPage !== this.props.maxImagesPerPage) {
+      const currentFirstImage = (this.state.activePage - 1) * prevProps.maxImagesPerPage + 1
+      this.handlePageSelect(Math.ceil(currentFirstImage / this.props.maxImagesPerPage))
     }
   }
 
-  handlePageSelect(eventKey) {
-    this.setState({ activePage: eventKey })
+  componentWillUnmount() {
+    if (this.state.paginationTimer) {
+      clearInterval(this.state.paginationTimer)
+    }
+
+    document.removeEventListener('keydown', this.handleKeyDown)
+  }
+
+  handleKeyDown(event) {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      return
+    }
+
+    if (
+      event.key === 'ArrowRight' &&
+      this.state.selectedPage < Math.ceil(this.props.imagesData.images.length / this.props.maxImagesPerPage)
+    ) {
+      this.handlePageSelect(this.state.selectedPage + 1)
+    } else if (event.key === 'ArrowLeft' && this.state.selectedPage > 1) {
+      this.handlePageSelect(this.state.selectedPage - 1)
+    }
+  }
+
+  handlePageSelect(page) {
+    this.setState({ selectedPage: page })
+    clearTimeout(this.state.paginationTimer)
+    this.setState({
+      paginationTimer: setTimeout(() => {
+        this.setState({
+          activePage: this.state.selectedPage
+        })
+      }, 500)
+    })
   }
 
   handleEventShowDetailsModal(event_id) {
@@ -49,7 +76,7 @@ class LoweringGalleryTab extends Component {
   renderImage(source, filepath, onclickFunc = null) {
     return (
       <Card className='event-image-data-card' id={`image_${source}`}>
-        <Image fluid onClick={onclickFunc} onError={handleMissingImage} src={filepath} />
+        <Image fluid onClick={onclickFunc} onError={handleMissingImage} src={getImageUrl(filepath)} />
       </Card>
     )
   }
@@ -72,20 +99,13 @@ class LoweringGalleryTab extends Component {
   render() {
     return (
       <React.Fragment>
-        <Row
-          key={`${this.props.imagesSource}_images`}
-          tabIndex='-1'
-          onKeyDown={this.handleKeyPress}
-          ref={(div) => {
-            this.divFocus = div
-          }}
-        >
+        <Row key={`${this.props.imagesSource}_images`} tabIndex='-1'>
           {this.renderGallery(this.props.imagesSource, this.props.imagesData)}
         </Row>
         <Row key={`${this.props.imagesSource}_images_pagination`}>
           <CustomPagination
             className='mt-2'
-            page={this.state.activePage}
+            page={this.state.selectedPage}
             count={this.props.imagesData.images ? this.props.imagesData.images.length : 0}
             pageSelectFunc={this.handlePageSelect}
             maxPerPage={this.props.maxImagesPerPage}

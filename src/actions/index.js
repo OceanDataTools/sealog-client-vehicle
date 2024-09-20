@@ -818,6 +818,7 @@ export const updateCruise = (formProps) => {
   let fields = { ...formProps }
   delete fields.id
   delete fields.cruise_access_list
+  delete fields.cruise_additional_meta.cruise_files
 
   return async (dispatch) => {
     const response = await update_cruise(fields, formProps.id)
@@ -908,6 +909,7 @@ export const updateLowering = (formProps) => {
   let fields = { ...formProps }
   delete fields.id
   delete fields.lowering_access_list
+  delete fields.lowering_additional_meta.lowering_files
 
   return async (dispatch) => {
     const response = await update_lowering(fields, formProps.id)

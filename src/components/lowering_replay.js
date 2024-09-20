@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import moment from 'moment'
 import { connect } from 'react-redux'
 import { ButtonToolbar, Container, Row, Col, Card, ListGroup, OverlayTrigger, Tooltip, Form } from 'react-bootstrap'
-import Slider, { createSliderWithTooltip } from 'rc-slider'
+import Slider from 'rc-slider'
 import PropTypes from 'prop-types'
 import EventFilterForm from './event_filter_form'
 import AuxDataCards from './aux_data_cards'
@@ -20,6 +20,10 @@ import { handle_image_file_download } from '../api'
 import { _Lowerings_ } from '../vocab'
 import * as mapDispatchToProps from '../actions'
 
+const SliderWithTooltip = Slider.createSliderWithTooltip(Slider)
+
+const maxEventsPerPage = 10
+
 const playTimer = 3000
 const ffwdTimer = 1000
 
@@ -28,37 +32,35 @@ const PAUSE = 1
 const FFWD = 2
 const FREV = 3
 
-const maxEventsPerPage = 10
-
 const excludeAuxDataSources = Array.from(new Set([...EXCLUDE_AUX_DATA_SOURCES, ...IMAGES_AUX_DATA_SOURCES]))
-
-const SliderWithTooltip = createSliderWithTooltip(Slider)
 
 class LoweringReplay extends Component {
   constructor(props) {
     super(props)
 
-    this.divFocus = null
-
     this.state = {
       replayTimer: null,
       replayState: PAUSE,
+
       replayEventIndex: 0,
       activePage: 1,
       sliderTimer: null
     }
 
-    this.handleKeyPress = this.handleKeyPress.bind(this)
-    this.sliderTooltipFormatter = this.sliderTooltipFormatter.bind(this)
-    this.handleSliderChange = this.handleSliderChange.bind(this)
+    this.sliderRef = React.createRef() // Reference to the slider
+
     this.handleEventClick = this.handleEventClick.bind(this)
     this.handleImagePreviewModal = this.handleImagePreviewModal.bind(this)
-    this.handlePageSelect = this.handlePageSelect.bind(this)
-    this.replayAdvance = this.replayAdvance.bind(this)
-    this.handleLoweringReplayPause = this.handleLoweringReplayPause.bind(this)
-    this.replayReverse = this.replayReverse.bind(this)
-    this.updateEventFilter = this.updateEventFilter.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleLoweringModeSelect = this.handleLoweringModeSelect.bind(this)
+    this.handleLoweringReplayPause = this.handleLoweringReplayPause.bind(this)
+    this.handlePageSelect = this.handlePageSelect.bind(this)
+    this.handleSliderChange = this.handleSliderChange.bind(this)
+    this.handleSliderChangeComplete = this.handleSliderChangeComplete.bind(this)
+    this.replayAdvance = this.replayAdvance.bind(this)
+    this.replayReverse = this.replayReverse.bind(this)
+    this.sliderTooltipFormatter = this.sliderTooltipFormatter.bind(this)
+    this.updateEventFilter = this.updateEventFilter.bind(this)
   }
 
   componentDidMount() {
@@ -72,7 +74,7 @@ class LoweringReplay extends Component {
       })
     }
 
-    this.divFocus.focus()
+    document.addEventListener('keydown', this.handleKeyDown)
   }
 
   componentDidUpdate() {}
@@ -81,18 +83,23 @@ class LoweringReplay extends Component {
     if (this.state.replayTimer) {
       clearInterval(this.state.replayTimer)
     }
+
+    document.removeEventListener('keydown', this.handleKeyDown)
   }
 
   updateEventFilter(filter) {
-    this.setState({ activePage: 1, replayEventIndex: 0 })
     this.handleLoweringReplayPause()
+    this.setState({ activePage: 1, replayEventIndex: 0 })
+    this.props.advanceLoweringReplayTo(this.props.event.events[0].id)
     this.props.updateEventFilterForm(filter)
     this.props.eventUpdateLoweringReplay()
   }
 
   toggleASNAP() {
-    this.props.toggleASNAP()
     this.handleLoweringReplayPause()
+    this.props.toggleASNAP()
+    this.setState({ replayEventIndex: 0 })
+    this.props.advanceLoweringReplayTo(this.props.event.events[0].id)
     this.props.eventUpdateLoweringReplay()
     this.handleEventClick(0)
   }
@@ -109,14 +116,16 @@ class LoweringReplay extends Component {
   }
 
   handleSliderChange(index) {
+    this.handleLoweringReplayPause()
     if (this.props.event.events && this.props.event.events[index]) {
-      this.handleLoweringReplayPause()
       this.setState({ replayEventIndex: index })
       clearTimeout(this.state.sliderTimer)
       this.setState({
         sliderTimer: setTimeout(() => {
           this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
-          this.setState({ activePage: Math.ceil((index + 1) / maxEventsPerPage) })
+          this.setState({
+            activePage: Math.ceil((index + 1) / maxEventsPerPage)
+          })
         }, 250)
       })
     }
@@ -125,15 +134,10 @@ class LoweringReplay extends Component {
   handleEventClick(index) {
     this.handleLoweringReplayPause()
     this.setState({ replayEventIndex: index })
+    this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
     if (this.props.event.events && this.props.event.events.length > index) {
-      this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
       this.setState({ activePage: Math.ceil((index + 1) / maxEventsPerPage) })
     }
-  }
-
-  handleImagePreviewModal(source, filepath) {
-    this.handleLoweringReplayPause()
-    this.props.showModal('imagePreview', { name: source, filepath: filepath })
   }
 
   handleEventCommentModal(index) {
@@ -146,43 +150,43 @@ class LoweringReplay extends Component {
     })
   }
 
-  handlePageSelect(eventKey, updateReplay = true) {
+  handlePageSelect(page, updateReplay = true) {
     this.handleLoweringReplayPause()
     this.setState({
-      activePage: eventKey,
-      replayEventIndex: (eventKey - 1) * maxEventsPerPage
+      activePage: page,
+      replayEventIndex: (page - 1) * maxEventsPerPage
     })
-    if (updateReplay) {
-      this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey - 1) * maxEventsPerPage].id)
-    }
-    this.divFocus.focus()
+    this.props.advanceLoweringReplayTo(this.props.event.events[(page - 1) * maxEventsPerPage].id)
   }
 
-  handleKeyPress(event) {
-    if (event.key === 'ArrowRight' && this.state.activePage < Math.ceil(this.props.event.events.length / maxEventsPerPage)) {
-      this.handlePageSelect(this.state.activePage + 1)
-    } else if (event.key === 'ArrowLeft' && this.state.activePage > 1) {
-      this.handlePageSelect(this.state.activePage - 1)
-    } else if (event.key === 'ArrowDown') {
-      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id)
-      if (eventIndex < this.props.event.events.length - 1) {
-        if (Math.ceil((eventIndex + 2) / maxEventsPerPage) !== this.state.activePage) {
-          this.handlePageSelect(Math.ceil((eventIndex + 2) / maxEventsPerPage))
-        } else {
-          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex + 1].id)
-        }
-      }
-    } else if (event.key === 'ArrowUp') {
-      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id)
-      if (eventIndex > 0) {
-        if (Math.ceil(eventIndex / maxEventsPerPage) !== this.state.activePage) {
-          this.handlePageSelect(Math.ceil(eventIndex / maxEventsPerPage), false)
-          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
-        } else {
-          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
-        }
-      }
+  handleKeyDown(event) {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      return
     }
+
+    if (event.key === 'ArrowRight' && this.state.activePage < Math.ceil(this.props.event.events.length / maxEventsPerPage)) {
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.activePage * maxEventsPerPage,
+        activePage: prevState.activePage + 1
+      }))
+    } else if (event.key === 'ArrowLeft' && this.state.activePage > 1) {
+      this.setState((prevState) => ({
+        replayEventIndex: (prevState.activePage - 2) * maxEventsPerPage,
+        activePage: prevState.activePage - 1
+      }))
+    } else if (event.key === 'ArrowDown' && this.state.replayEventIndex < this.props.event.events.length - 1) {
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.replayEventIndex + 1,
+        activePage: Math.ceil((prevState.replayEventIndex + 2) / maxEventsPerPage)
+      }))
+    } else if (event.key === 'ArrowUp' && this.state.replayEventIndex > 0) {
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.replayEventIndex - 1,
+        activePage: Math.ceil(prevState.replayEventIndex / maxEventsPerPage)
+      }))
+    }
+
+    this.props.advanceLoweringReplayTo(this.props.event.events[this.state.replayEventIndex].id)
   }
 
   handleLoweringModeSelect(mode) {
@@ -190,26 +194,34 @@ class LoweringReplay extends Component {
       this.props.gotoLoweringGallery(this.props.match.params.id)
     } else if (mode === 'Map') {
       this.props.gotoLoweringMap(this.props.match.params.id)
-    } else if (mode === 'Replay') {
-      this.props.gotoLoweringReplay(this.props.match.params.id)
     }
+  }
+
+  handleSliderChangeComplete() {
+    const sliderHandle = this.sliderRef.current?.querySelector('.rc-slider-handle')
+    if (sliderHandle) {
+      sliderHandle.blur()
+    }
+  }
+
+  handleImagePreviewModal(source, filepath) {
+    this.handleLoweringReplayPause()
+    this.props.showModal('imagePreview', { name: source, filepath: filepath })
   }
 
   handleLoweringReplayStart() {
     this.handleLoweringReplayPause()
-    this.setState({ replayEventIndex: 0 })
-    this.props.advanceLoweringReplayTo(this.props.event.events[this.state.replayEventIndex].id)
     this.setState({
+      replayEventIndex: 0,
       activePage: Math.ceil((this.state.replayEventIndex + 1) / maxEventsPerPage)
     })
   }
 
   handleLoweringReplayEnd() {
     this.handleLoweringReplayPause()
-    this.setState({ replayEventIndex: this.props.event.events.length - 1 })
-    this.props.advanceLoweringReplayTo(this.props.event.events[this.state.replayEventIndex].id)
     this.setState({
-      activePage: Math.ceil((this.state.replayEventIndex + 1) / maxEventsPerPage)
+      replayEventIndex: this.props.event.events.length - 1,
+      activePage: Math.ceil(this.props.event.events.length / maxEventsPerPage)
     })
   }
 
@@ -247,11 +259,11 @@ class LoweringReplay extends Component {
 
   replayAdvance() {
     if (this.state.replayEventIndex < this.props.event.events.length - 1) {
-      this.setState({ replayEventIndex: this.state.replayEventIndex + 1 })
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.replayEventIndex + 1,
+        activePage: Math.ceil((prevState.replayEventIndex + 2) / maxEventsPerPage)
+      }))
       this.props.advanceLoweringReplayTo(this.props.event.events[this.state.replayEventIndex].id)
-      this.setState({
-        activePage: Math.ceil((this.state.replayEventIndex + 1) / maxEventsPerPage)
-      })
     } else {
       this.setState({ replayState: PAUSE })
     }
@@ -259,11 +271,11 @@ class LoweringReplay extends Component {
 
   replayReverse() {
     if (this.state.replayEventIndex > 0) {
-      this.setState({ replayEventIndex: this.state.replayEventIndex - 1 })
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.replayEventIndex - 1,
+        activePage: Math.ceil(prevState.replayEventIndex / maxEventsPerPage)
+      }))
       this.props.advanceLoweringReplayTo(this.props.event.events[this.state.replayEventIndex].id)
-      this.setState({
-        activePage: Math.ceil((this.state.replayEventIndex + 1) / maxEventsPerPage)
-      })
     } else {
       this.setState({ replayState: PAUSE })
     }
@@ -329,13 +341,13 @@ class LoweringReplay extends Component {
         )
 
       return (
-        <Card className='border-secondar p-1'>
+        <Card className='border-secondary p-1'>
           <div className='d-flex align-items-center justify-content-between'>
             <span className='text-primary'>00:00:00</span>
             {buttons}
             <span className='text-primary'>{moment.duration(loweringDuration).format('d [days] hh:mm:ss')}</span>
           </div>
-          <div className='d-flex align-items-center justify-content-between'>
+          <div className='d-flex align-items-center justify-content-between' ref={this.sliderRef}>
             <SliderWithTooltip
               className='mx-2'
               value={this.state.replayEventIndex}
@@ -344,6 +356,7 @@ class LoweringReplay extends Component {
               railStyle={{ opacity: 0.5 }}
               onBeforeChange={this.handleLoweringReplayPause}
               onChange={this.handleSliderChange}
+              onAfterChange={this.handleSliderChangeComplete}
               max={this.props.event.events.length - 1}
             />
           </div>
@@ -451,14 +464,7 @@ class LoweringReplay extends Component {
     return (
       <Card className='border-secondary'>
         <Card.Header>{this.renderEventListHeader()}</Card.Header>
-        <ListGroup
-          variant='flush'
-          tabIndex='-1'
-          onKeyDown={this.handleKeyPress}
-          ref={(div) => {
-            this.divFocus = div
-          }}
-        >
+        <ListGroup variant='flush' tabIndex='-1'>
           {this.renderEvents()}
         </ListGroup>
       </Card>
@@ -555,14 +561,13 @@ class LoweringReplay extends Component {
 
 LoweringReplay.propTypes = {
   advanceLoweringReplayTo: PropTypes.func.isRequired,
-  lowering: PropTypes.object.isRequired,
   event: PropTypes.object.isRequired,
   eventUpdateLoweringReplay: PropTypes.func.isRequired,
   gotoCruiseMenu: PropTypes.func.isRequired,
   gotoLoweringGallery: PropTypes.func.isRequired,
   gotoLoweringMap: PropTypes.func.isRequired,
-  gotoLoweringReplay: PropTypes.func.isRequired,
   initLoweringReplay: PropTypes.func.isRequired,
+  lowering: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
   roles: PropTypes.array,
   showModal: PropTypes.func.isRequired,
