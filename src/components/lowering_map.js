@@ -5,7 +5,7 @@ import moment from 'moment'
 import { Map, TileLayer, WMSTileLayer, Marker, Polyline, Popup, LayersControl, ScaleControl, CircleMarker } from 'react-leaflet'
 import L from 'leaflet'
 import { ButtonToolbar, Container, Row, Col, Card, Tooltip, OverlayTrigger, ListGroup, Form } from 'react-bootstrap'
-import Slider, { createSliderWithTooltip } from 'rc-slider'
+import Slider from 'rc-slider'
 import EventShowDetailsModal from './event_show_details_modal'
 import EventFilterForm from './event_filter_form'
 import EventCommentModal from './event_comment_modal'
@@ -19,17 +19,15 @@ import { TILE_LAYERS, DEFAULT_LOCATION } from '../map_tilelayers'
 import { _Lowerings_ } from '../vocab'
 import * as mapDispatchToProps from '../actions'
 
-const { BaseLayer } = LayersControl
-
-const SliderWithTooltip = createSliderWithTooltip(Slider)
+const SliderWithTooltip = Slider.createSliderWithTooltip(Slider)
 
 const maxEventsPerPage = 10
+
+const { BaseLayer } = LayersControl
 
 class LoweringMap extends Component {
   constructor(props) {
     super(props)
-
-    this.divFocus = null
 
     this.state = {
       fetching: false,
@@ -48,12 +46,15 @@ class LoweringMap extends Component {
       height: '480px'
     }
 
+    this.sliderRef = React.createRef() // Reference to the slider
+
     this.handleEventClick = this.handleEventClick.bind(this)
-    this.handleKeyPress = this.handleKeyPress.bind(this)
+    this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleLoweringModeSelect = this.handleLoweringModeSelect.bind(this)
     this.handleMoveEnd = this.handleMoveEnd.bind(this)
     this.handlePageSelect = this.handlePageSelect.bind(this)
     this.handleSliderChange = this.handleSliderChange.bind(this)
+    this.handleSliderChangeComplete = this.handleSliderChangeComplete.bind(this)
     this.handleZoomEnd = this.handleZoomEnd.bind(this)
     this.initMapView = this.initMapView.bind(this)
     this.sliderTooltipFormatter = this.sliderTooltipFormatter.bind(this)
@@ -71,7 +72,9 @@ class LoweringMap extends Component {
         activePage: Math.ceil((eventIndex + 1) / maxEventsPerPage)
       })
     }
-    this.divFocus.focus()
+
+    document.addEventListener('keydown', this.handleKeyDown)
+
     this.initLoweringTrackline(this.props.match.params.id)
   }
 
@@ -83,36 +86,118 @@ class LoweringMap extends Component {
     if (this.state.replayTimer) {
       clearInterval(this.state.replayTimer)
     }
+
+    document.removeEventListener('keydown', this.handleKeyDown)
   }
 
-  handleKeyPress(event) {
+  updateEventFilter(filter = {}) {
+    this.setState({ activePage: 1, replayEventIndex: 0 })
+    this.props.advanceLoweringReplayTo(this.props.event.events[0].id)
+    this.props.updateEventFilterForm(filter)
+    this.props.eventUpdateLoweringReplay()
+  }
+
+  toggleASNAP() {
+    this.props.toggleASNAP()
+    this.setState({ replayEventIndex: 0 })
+    this.props.advanceLoweringReplayTo(this.props.event.events[0].id)
+    this.props.eventUpdateLoweringReplay()
+    this.handleEventClick(0)
+  }
+
+  sliderTooltipFormatter(v) {
+    if (this.props.event.events && this.props.event.events[v]) {
+      let loweringStartTime = moment(this.props.lowering.start_ts)
+      let loweringNow = moment(this.props.event.events[v].ts)
+      let loweringElapse = loweringNow.diff(loweringStartTime)
+      return moment.duration(loweringElapse).format('d [days] hh:mm:ss')
+    }
+
+    return ''
+  }
+
+  handleSliderChange(index) {
+    if (this.props.event.events && this.props.event.events[index]) {
+      this.setState({ replayEventIndex: index })
+      clearTimeout(this.state.sliderTimer)
+      this.setState({
+        sliderTimer: setTimeout(() => {
+          this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
+          this.setState({
+            activePage: Math.ceil((index + 1) / maxEventsPerPage)
+          })
+        }, 250)
+      })
+    }
+  }
+
+  handleEventClick(index) {
+    this.setState({ replayEventIndex: index })
+    this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
+    if (this.props.event.events && this.props.event.events.length > index) {
+      this.setState({ activePage: Math.ceil((index + 1) / maxEventsPerPage) })
+    }
+  }
+
+  handleEventCommentModal(index) {
+    this.setState({ replayEventIndex: index })
+    this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
+    this.props.showModal('eventComment', {
+      event: this.props.event.events[index],
+      handleUpdateEvent: this.props.updateEvent
+    })
+  }
+
+  handlePageSelect(page) {
+    this.setState({
+      activePage: page,
+      replayEventIndex: (page - 1) * maxEventsPerPage
+    })
+    this.props.advanceLoweringReplayTo(this.props.event.events[(page - 1) * maxEventsPerPage].id)
+  }
+
+  handleKeyDown(event) {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      return
+    }
+
     if (event.key === 'ArrowRight' && this.state.activePage < Math.ceil(this.props.event.events.length / maxEventsPerPage)) {
-      this.handlePageSelect(this.state.activePage + 1)
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.activePage * maxEventsPerPage,
+        activePage: prevState.activePage + 1
+      }))
     } else if (event.key === 'ArrowLeft' && this.state.activePage > 1) {
-      this.handlePageSelect(this.state.activePage - 1)
-    } else if (event.key === 'ArrowDown') {
-      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id)
-      if (eventIndex < this.props.event.events.length - 1) {
-        if (Math.ceil((eventIndex + 2) / maxEventsPerPage) !== this.state.activePage) {
-          this.handlePageSelect(Math.ceil((eventIndex + 2) / maxEventsPerPage))
-        } else {
-          this.setState({ replayEventIndex: eventIndex + 1 })
-          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex + 1].id)
-        }
-      }
-    } else if (event.key === 'ArrowUp') {
-      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id)
-      if (eventIndex > 0) {
-        if (Math.ceil(eventIndex / maxEventsPerPage) !== this.state.activePage) {
-          this.handlePageSelect(Math.ceil(eventIndex / maxEventsPerPage), false)
-          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
-        } else {
-          this.setState({ replayEventIndex: eventIndex - 1 })
-          this.props.advanceLoweringReplayTo(this.props.event.events[eventIndex - 1].id)
-        }
-      }
-    } else if (event.key === 'Enter') {
-      this.handleEventShowDetailsModal(this.state.replayEventIndex)
+      this.setState((prevState) => ({
+        replayEventIndex: (prevState.activePage - 2) * maxEventsPerPage,
+        activePage: prevState.activePage - 1
+      }))
+    } else if (event.key === 'ArrowDown' && this.state.replayEventIndex < this.props.event.events.length - 1) {
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.replayEventIndex + 1,
+        activePage: Math.ceil((prevState.replayEventIndex + 2) / maxEventsPerPage)
+      }))
+    } else if (event.key === 'ArrowUp' && this.state.replayEventIndex > 0) {
+      this.setState((prevState) => ({
+        replayEventIndex: prevState.replayEventIndex - 1,
+        activePage: Math.ceil(prevState.replayEventIndex / maxEventsPerPage)
+      }))
+    }
+
+    this.props.advanceLoweringReplayTo(this.props.event.events[this.state.replayEventIndex].id)
+  }
+
+  handleLoweringModeSelect(mode) {
+    if (mode === 'Gallery') {
+      this.props.gotoLoweringGallery(this.props.match.params.id)
+    } else if (mode === 'Replay') {
+      this.props.gotoLoweringReplay(this.props.match.params.id)
+    }
+  }
+
+  handleSliderChangeComplete() {
+    const sliderHandle = this.sliderRef.current?.querySelector('.rc-slider-handle')
+    if (sliderHandle) {
+      sliderHandle.blur()
     }
   }
 
@@ -174,73 +259,6 @@ class LoweringMap extends Component {
     }
   }
 
-  updateEventFilter(filter = {}) {
-    this.setState({ activePage: 1, replayEventIndex: 0 })
-    this.props.updateEventFilterForm(filter)
-    this.props.eventUpdateLoweringReplay()
-  }
-
-  toggleASNAP() {
-    this.props.toggleASNAP()
-    this.setState({ replayEventIndex: 0 })
-    this.props.eventUpdateLoweringReplay()
-    this.handleEventClick(0)
-  }
-
-  sliderTooltipFormatter(v) {
-    if (this.props.event.events && this.props.event.events[v]) {
-      let loweringStartTime = moment(this.props.lowering.start_ts)
-      let loweringNow = moment(this.props.event.events[v].ts)
-      let loweringElapse = loweringNow.diff(loweringStartTime)
-      return moment.duration(loweringElapse).format('d [days] hh:mm:ss')
-    }
-
-    return ''
-  }
-
-  handleSliderChange(index) {
-    if (this.props.event.events && this.props.event.events[index]) {
-      this.setState({ replayEventIndex: index })
-      clearTimeout(this.state.sliderTimer)
-      this.setState({
-        sliderTimer: setTimeout(() => {
-          this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
-          this.setState({ activePage: Math.ceil((index + 1) / maxEventsPerPage) })
-        }, 250)
-      })
-      // this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
-      // this.setState({ activePage: Math.ceil((index + 1) / maxEventsPerPage) })
-    }
-  }
-
-  handleEventClick(index) {
-    this.setState({ replayEventIndex: index })
-    if (this.props.event.events && this.props.event.events.length > index) {
-      this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
-      this.setState({ activePage: Math.ceil((index + 1) / maxEventsPerPage) })
-    }
-  }
-
-  handleEventCommentModal(index) {
-    this.setState({ replayEventIndex: index })
-    this.props.advanceLoweringReplayTo(this.props.event.events[index].id)
-    this.props.showModal('eventComment', {
-      event: this.props.event.events[index],
-      handleUpdateEvent: this.props.updateEvent
-    })
-  }
-
-  handlePageSelect(eventKey, updateReplay = true) {
-    this.setState({
-      activePage: eventKey,
-      replayEventIndex: (eventKey - 1) * maxEventsPerPage
-    })
-    if (updateReplay) {
-      this.props.advanceLoweringReplayTo(this.props.event.events[(eventKey - 1) * maxEventsPerPage].id)
-    }
-    this.divFocus.focus()
-  }
-
   handleZoomEnd() {
     if (this.map) {
       this.setState({ zoom: this.map.leafletElement.getZoom() })
@@ -260,16 +278,6 @@ class LoweringMap extends Component {
     })
   }
 
-  handleLoweringModeSelect(mode) {
-    if (mode === 'Gallery') {
-      this.props.gotoLoweringGallery(this.props.match.params.id)
-    } else if (mode === 'Map') {
-      this.props.gotoLoweringMap(this.props.match.params.id)
-    } else if (mode === 'Replay') {
-      this.props.gotoLoweringReplay(this.props.match.params.id)
-    }
-  }
-
   renderControlsCard() {
     if (this.props.lowering) {
       const loweringStartTime = moment(this.props.lowering.start_ts)
@@ -282,7 +290,7 @@ class LoweringMap extends Component {
             <span className='text-primary'>00:00:00</span>
             <span className='text-primary'>{moment.duration(loweringDuration).format('d [days] hh:mm:ss')}</span>
           </div>
-          <div className='d-flex align-items-center justify-content-between'>
+          <div className='d-flex align-items-center justify-content-between' ref={this.sliderRef}>
             <SliderWithTooltip
               className='mx-2'
               value={this.state.replayEventIndex}
@@ -290,6 +298,7 @@ class LoweringMap extends Component {
               trackStyle={{ opacity: 0.5 }}
               railStyle={{ opacity: 0.5 }}
               onChange={this.handleSliderChange}
+              onAfterChange={this.handleSliderChangeComplete}
               max={this.props.event.events.length - 1}
             />
           </div>
@@ -334,14 +343,7 @@ class LoweringMap extends Component {
     return (
       <Card className='border-secondary'>
         <Card.Header>{this.renderEventListHeader()}</Card.Header>
-        <ListGroup
-          variant='flush'
-          tabIndex='-1'
-          onKeyDown={this.handleKeyPress}
-          ref={(div) => {
-            this.divFocus = div
-          }}
-        >
+        <ListGroup variant='flush' tabIndex='-1'>
           {this.renderEvents()}
         </ListGroup>
       </Card>
@@ -567,15 +569,14 @@ class LoweringMap extends Component {
 }
 
 LoweringMap.propTypes = {
-  lowering: PropTypes.object.isRequired,
   advanceLoweringReplayTo: PropTypes.func.isRequired,
   event: PropTypes.object.isRequired,
   eventUpdateLoweringReplay: PropTypes.func.isRequired,
   gotoCruiseMenu: PropTypes.func.isRequired,
   gotoLoweringGallery: PropTypes.func.isRequired,
-  gotoLoweringMap: PropTypes.func.isRequired,
   gotoLoweringReplay: PropTypes.func.isRequired,
   initLoweringReplay: PropTypes.func.isRequired,
+  lowering: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
   roles: PropTypes.array,
   showModal: PropTypes.func.isRequired,
