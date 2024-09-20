@@ -62,7 +62,7 @@ class LoweringGalleryTab extends Component {
         this.setState({
           activePage: this.state.selectedPage
         })
-      }, 250)
+      }, 500)
     })
   }
 

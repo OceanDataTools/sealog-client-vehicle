@@ -126,7 +126,7 @@ class LoweringMap extends Component {
           this.setState({
             activePage: Math.ceil((index + 1) / maxEventsPerPage)
           })
-        }, 500)
+        }, 250)
       })
     }
   }
