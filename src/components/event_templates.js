@@ -127,7 +127,7 @@ class EventTemplates extends Component {
         activeSystemPage: 1
       })
     } else {
-      this.setState({ filteredSystemEventTemplates: null })
+      this.setState({ filteredSystemTemplates: null })
     }
     this.handlePageSelect(1)
   }
