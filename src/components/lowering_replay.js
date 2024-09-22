@@ -150,7 +150,7 @@ class LoweringReplay extends Component {
     })
   }
 
-  handlePageSelect(page, updateReplay = true) {
+  handlePageSelect(page) {
     this.handleLoweringReplayPause()
     this.setState({
       activePage: page,

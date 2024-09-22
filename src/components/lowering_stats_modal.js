@@ -16,7 +16,7 @@ import { renderAlert, renderMessage } from './form_elements'
 import { highchartsTheme } from '../utils'
 import LoweringStatsForm from './lowering_stats_form'
 import { DEFAULT_LOCATION, TILE_LAYERS } from '../map_tilelayers'
-import { START_MILESTONE, STOP_MILESTONE, ABORT_MILESTONE, MILESTONES, LOWERING_ASCENT, LOWERING_DESCENT } from '../milestones'
+import { START_MILESTONE, STOP_MILESTONE, ABORT_MILESTONE, MILESTONES } from '../milestones'
 import { POSITION_DATASOURCES } from '../client_settings'
 import { get_event_exports_by_lowering } from '../api'
 import * as mapDispatchToProps from '../actions'
@@ -53,27 +53,8 @@ class LoweringStatsModal extends Component {
 
       milestone_to_edit: null,
       milestones: {
+        ...this.props.lowering.lowering_additional_meta.milestones,
         start_ts: this.props.lowering.start_ts,
-        lowering_descending:
-          this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]
-            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]
-            : null,
-        lowering_on_bottom:
-          this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]]
-            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[1]]
-            : null,
-        lowering_off_bottom:
-          this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]]
-            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[0]]
-            : null,
-        lowering_on_surface:
-          this.props.lowering.lowering_additional_meta.milestones &&
-          this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]
-            ? this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]
-            : null,
         stop_ts: this.props.lowering.stop_ts,
         lowering_aborted:
           this.props.lowering.lowering_additional_meta.milestones &&
