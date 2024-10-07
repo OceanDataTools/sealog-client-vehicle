@@ -89,7 +89,7 @@ class Cruises extends Component {
   handleCruiseExportModal(cruise) {
     this.props.showModal('executeCommand', {
       title: `Export ${_Cruise_}: ${cruise['cruise_id']}`,
-      message: `Export data related to this cruise and all associated ${_lowerings_} to files.`,
+      message: `Export data related to this ${_cruise_} and all associated ${_lowerings_} to files.`,
       handleConfirm: () => this.props.exportCruise(cruise['id'])
     })
   }
