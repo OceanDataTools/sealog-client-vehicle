@@ -14,6 +14,8 @@ import {
   delete_event,
   delete_lowering,
   delete_user,
+  export_cruise,
+  export_lowering,
   forgot_password,
   get_cruises,
   get_event_exports,
@@ -417,6 +419,18 @@ export const eventUpdateLoweringReplay = () => {
     const selected_event = payload.length ? await get_event_exports({}, payload[0].id) : {}
     dispatch({ type: SET_SELECTED_EVENT, payload: selected_event })
     return dispatch({ type: EVENT_FETCHING, payload: false })
+  }
+}
+
+export const exportCruise = (id) => {
+  return async () => {
+    await export_cruise(id)
+  }
+}
+
+export const exportLowering = (id) => {
+  return async () => {
+    await export_lowering(id)
   }
 }
 
