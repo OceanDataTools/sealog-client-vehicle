@@ -448,7 +448,7 @@ class LoweringStatsModal extends Component {
         <Col key='milestones' md={6}>
           <strong style={{ fontSize: 'large' }}>Milestones</strong>
           <div
-            className={this.state.milestone_to_edit == 'start_ts' ? 'text-warning' : ''}
+            className={this.state.milestone_to_edit == 'start_ts' ? 'pl-3 text-warning' : 'pl-3'}
             onClick={() => this.setMilestoneToEdit('start_ts')}
           >
             <strong>{START_MILESTONE.label}</strong>: {this.state.milestones['start_ts']}
@@ -457,7 +457,7 @@ class LoweringStatsModal extends Component {
             return (
               <div
                 key={milestone.name}
-                className={this.state.milestone_to_edit == milestone.name ? 'text-warning' : ''}
+                className={this.state.milestone_to_edit == milestone.name ? 'pl-3 text-warning' : 'pl-3'}
                 onClick={() => this.setMilestoneToEdit(milestone.name)}
               >
                 <strong>{milestone.label}</strong>: {this.state.milestones[milestone.name]}
@@ -465,13 +465,13 @@ class LoweringStatsModal extends Component {
             )
           })}
           <div
-            className={this.state.milestone_to_edit == 'stop_ts' ? 'text-warning' : ''}
+            className={this.state.milestone_to_edit == 'stop_ts' ? 'pl-3 text-warning' : 'pl-3'}
             onClick={() => this.setMilestoneToEdit('stop_ts')}
           >
             <strong>{STOP_MILESTONE.label}</strong>: {this.state.milestones['stop_ts']}
           </div>
           <div
-            className={this.state.milestone_to_edit == ABORT_MILESTONE.name ? 'text-warning' : ''}
+            className={this.state.milestone_to_edit == ABORT_MILESTONE.name ? 'pl-3 text-warning' : 'pl-3'}
             onClick={() => this.setMilestoneToEdit(ABORT_MILESTONE.name)}
           >
             <strong>{ABORT_MILESTONE.label}</strong>: {this.state.milestones[ABORT_MILESTONE.name]}
@@ -479,13 +479,13 @@ class LoweringStatsModal extends Component {
         </Col>,
         <Col key='stats' md={6}>
           <strong style={{ fontSize: 'large' }}>Stats</strong>
-          <div>
+          <div className='pl-3'>
             <strong>Max Depth:</strong> {this.state.stats.max_depth}{' '}
             <OverlayTrigger placement='top' overlay={<Tooltip id='maxDepthTooltip'>Click to calculate max depth from depth data.</Tooltip>}>
               <FontAwesomeIcon className='text-primary' onClick={() => this.handleCalculateMaxDepth()} icon='calculator' fixedWidth />
             </OverlayTrigger>
           </div>
-          <div>
+          <div className='pl-3'>
             <strong>Bounding Box:</strong> {this.state.stats.bounding_box ? this.state.stats.bounding_box.join(', ') : ''}{' '}
             <OverlayTrigger
               placement='top'

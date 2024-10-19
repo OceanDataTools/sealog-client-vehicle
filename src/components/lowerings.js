@@ -7,6 +7,7 @@ import PropTypes from 'prop-types'
 import LoweringForm from './lowering_form'
 import DeleteFileModal from './delete_file_modal'
 import DeleteLoweringModal from './delete_lowering_modal'
+import ExecuteModal from './execute_modal'
 import ImportLoweringsModal from './import_lowerings_modal'
 import CopyLoweringToClipboard from './copy_lowering_to_clipboard'
 import LoweringStatsModal from './lowering_stats_modal'
@@ -99,6 +100,14 @@ class Lowerings extends Component {
     })
   }
 
+  handleLoweringExportModal(lowering) {
+    this.props.showModal('executeCommand', {
+      title: `Export ${_Lowering_}: ${lowering['lowering_id']}`,
+      message: `Export data related to this ${_lowering_} to files.`,
+      handleConfirm: () => this.props.exportLowering(lowering['id'])
+    })
+  }
+
   handleLoweringPermissions(lowering_id) {
     this.props.showModal('loweringPermissions', { lowering_id: lowering_id })
   }
@@ -184,6 +193,7 @@ class Lowerings extends Component {
   renderLowerings() {
     const editTooltip = <Tooltip id='editTooltip'>Edit this {_lowering_}.</Tooltip>
     const deleteTooltip = <Tooltip id='deleteTooltip'>Delete this {_lowering_}.</Tooltip>
+    const exportTooltip = <Tooltip id='exportTooltip'>Export this {_lowering_}.</Tooltip>
     const showTooltip = <Tooltip id='showTooltip'>{_Lowering_} is hidden, click to show.</Tooltip>
     const hideTooltip = <Tooltip id='hideTooltip'>{_Lowering_} is visible, click to hide.</Tooltip>
     const permissionTooltip = <Tooltip id='permissionTooltip'>User permissions.</Tooltip>
@@ -219,6 +229,17 @@ class Lowerings extends Component {
               className='text-danger pl-1'
               onClick={() => this.handleLoweringDeleteModal(lowering.id)}
               icon='trash'
+              fixedWidth
+            />
+          </OverlayTrigger>
+        ) : null
+
+        let exportLink = this.props.roles.includes('admin') ? (
+          <OverlayTrigger placement='top' overlay={exportTooltip}>
+            <FontAwesomeIcon
+              className='text-info pl-1'
+              onClick={() => this.handleLoweringExportModal(lowering)}
+              icon='download'
               fixedWidth
             />
           </OverlayTrigger>
@@ -270,6 +291,7 @@ class Lowerings extends Component {
             <td className='text-center'>
               {editLink}
               {permLink}
+              {exportLink}
               {hiddenLink}
               {deleteLink}
               <CopyLoweringToClipboard lowering={lowering} />
@@ -329,6 +351,7 @@ class Lowerings extends Component {
         <Container className='mt-2'>
           <DeleteFileModal />
           <DeleteLoweringModal />
+          <ExecuteModal />
           <ImportLoweringsModal handleExit={this.handleLoweringImportClose} handleFormSubmit={this.props.fetchLowerings} />
           <LoweringStatsModal />
           <LoweringPermissionsModal />
@@ -367,6 +390,7 @@ Lowerings.propTypes = {
   lowering_id: PropTypes.string,
   lowerings: PropTypes.array,
   deleteLowering: PropTypes.func.isRequired,
+  exportLowering: PropTypes.func.isRequired,
   fetchLowerings: PropTypes.func.isRequired,
   hideLowering: PropTypes.func.isRequired,
   initLowering: PropTypes.func.isRequired,

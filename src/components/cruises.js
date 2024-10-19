@@ -7,12 +7,13 @@ import PropTypes from 'prop-types'
 import CruiseForm from './cruise_form'
 import DeleteCruiseModal from './delete_cruise_modal'
 import DeleteFileModal from './delete_file_modal'
+import ExecuteModal from './execute_modal'
 import ImportCruisesModal from './import_cruises_modal'
 import CopyCruiseToClipboard from './copy_cruise_to_clipboard'
 import CruisePermissionsModal from './cruise_permissions_modal'
 import CustomPagination from './custom_pagination'
 import { USE_ACCESS_CONTROL } from '../client_settings'
-import { _Cruises_, _Cruise_, _cruise_ } from '../vocab'
+import { _Cruises_, _Cruise_, _cruise_, _lowerings_ } from '../vocab'
 import * as mapDispatchToProps from '../actions'
 
 let fileDownload = require('js-file-download')
@@ -82,6 +83,14 @@ class Cruises extends Component {
     this.props.showModal('deleteCruise', {
       id: id,
       handleDelete: this.props.deleteCruise
+    })
+  }
+
+  handleCruiseExportModal(cruise) {
+    this.props.showModal('executeCommand', {
+      title: `Export ${_Cruise_}: ${cruise['cruise_id']}`,
+      message: `Export data related to this ${_cruise_} and all associated ${_lowerings_} to files.`,
+      handleConfirm: () => this.props.exportCruise(cruise['id'])
     })
   }
 
@@ -181,6 +190,7 @@ class Cruises extends Component {
   renderCruises() {
     const editTooltip = <Tooltip id='editTooltip'>Edit this {_cruise_}.</Tooltip>
     const deleteTooltip = <Tooltip id='deleteTooltip'>Delete this {_cruise_}.</Tooltip>
+    const exportTooltip = <Tooltip id='exportTooltip'>Export this {_cruise_}.</Tooltip>
     const showTooltip = <Tooltip id='showTooltip'>{_Cruise_} is hidden, click to show.</Tooltip>
     const hideTooltip = <Tooltip id='hideTooltip'>{_Cruise_} is visible, click to hide.</Tooltip>
     const permissionTooltip = <Tooltip id='permissionTooltip'>User permissions.</Tooltip>
@@ -213,6 +223,12 @@ class Cruises extends Component {
         let deleteLink = this.props.roles.includes('admin') ? (
           <OverlayTrigger placement='top' overlay={deleteTooltip}>
             <FontAwesomeIcon className='text-danger pl-1' onClick={() => this.handleCruiseDeleteModal(cruise.id)} icon='trash' fixedWidth />
+          </OverlayTrigger>
+        ) : null
+
+        let exportLink = this.props.roles.includes('admin') ? (
+          <OverlayTrigger placement='top' overlay={exportTooltip}>
+            <FontAwesomeIcon className='text-info pl-1' onClick={() => this.handleCruiseExportModal(cruise)} icon='download' fixedWidth />
           </OverlayTrigger>
         ) : null
 
@@ -267,6 +283,7 @@ class Cruises extends Component {
             <td className='text-center'>
               {editLink}
               {permLink}
+              {exportLink}
               {hiddenLink}
               {deleteLink}
               <CopyCruiseToClipboard cruise={cruise} />
@@ -330,6 +347,7 @@ class Cruises extends Component {
         <Container className='mt-2'>
           <DeleteCruiseModal />
           <DeleteFileModal />
+          <ExecuteModal />
           <CruisePermissionsModal onClose={this.props.fetchCruises} />
           <ImportCruisesModal handleExit={this.handleCruiseImportClose} />
           <Row>
@@ -367,6 +385,7 @@ Cruises.propTypes = {
   cruise_id: PropTypes.string,
   cruises: PropTypes.array,
   deleteCruise: PropTypes.func.isRequired,
+  exportCruise: PropTypes.func.isRequired,
   fetchCruises: PropTypes.func.isRequired,
   hideCruise: PropTypes.func.isRequired,
   initCruise: PropTypes.func.isRequired,
