@@ -193,7 +193,7 @@ export const delete_cruise = async (id) => {
 
 export const export_cruise = async (id) => {
   return await axios
-    .get(`${API_ROOT_URL}/api/v1/external_calls/execute_export_cruise/${id}`, authorizationHeader())
+    .get(`${API_ROOT_URL}/api/v1/external_calls/export_cruise/${id}`, authorizationHeader())
     .then(() => {
       return { success: true }
     })
@@ -552,7 +552,7 @@ export const delete_lowering = async (id) => {
 
 export const export_lowering = async (id) => {
   return await axios
-    .get(`${API_ROOT_URL}/api/v1/external_calls/execute_export_lowering/${id}`, authorizationHeader())
+    .get(`${API_ROOT_URL}/api/v1/external_calls/export_lowering/${id}`, authorizationHeader())
     .then(() => {
       return { success: true }
     })
