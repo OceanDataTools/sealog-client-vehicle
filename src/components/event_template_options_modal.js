@@ -305,6 +305,7 @@ EventTemplateOptionsModal.propTypes = {
   handleHide: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   handleUpdateEvent: PropTypes.func,
+  change: PropTypes.func.isRequired,
   initialize: PropTypes.func.isRequired,
   show: PropTypes.bool.isRequired,
   submitting: PropTypes.bool.isRequired,
