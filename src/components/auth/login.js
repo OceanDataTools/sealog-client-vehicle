@@ -50,8 +50,9 @@ class Login extends Component {
 
   async handleFormSubmit({ username, password }) {
     let reCaptcha = RECAPTCHA_SITE_KEY ? await this.recaptchaRef.current.executeAsync() : null
-    username = username.toLowerCase()
-    await this.props.login({ username, password, reCaptcha })
+    const credential = username.toLowerCase()
+    const payload = credential.includes('@') ? { email: credential, password, reCaptcha } : { username: credential, password, reCaptcha }
+    await this.props.login(payload)
   }
 
   async switch2Guest() {
@@ -106,7 +107,7 @@ class Login extends Component {
           <Form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
             <h5>Please log in</h5>
             <Form.Group className='mb-2'>
-              <Field name='username' component={renderTextField} placeholder='Username' />
+              <Field name='username' component={renderTextField} placeholder='Username or Email' />
             </Form.Group>
             <Form.Group className='mb-2'>
               <Field name='password' component={renderTextField} type='password' placeholder='Password' />
