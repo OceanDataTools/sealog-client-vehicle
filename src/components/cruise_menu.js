@@ -46,12 +46,7 @@ class CruiseMenu extends Component {
 
     if (this.props.cruises !== prevProps.cruises && this.props.cruises.length > 0) {
       this.buildYearList()
-      const currentCruise = this.props.cruises
-        ? this.props.cruises.find((cruise) => {
-            const now = moment.utc()
-            return now.isBetween(moment.utc(cruise.start_ts), moment.utc(cruise.stop_ts))
-          })
-        : null
+      const currentCruise = this.findCurrentCruise()
 
       currentCruise ? this.buildLoweringList() : null
 
@@ -71,12 +66,7 @@ class CruiseMenu extends Component {
     }
 
     if (this.props.lowerings !== prevProps.lowerings && this.props.lowerings.length > 0) {
-      const currentCruise = this.props.cruises
-        ? this.props.cruises.find((cruise) => {
-            const now = moment.utc()
-            return now.isBetween(moment.utc(cruise.start_ts), moment.utc(cruise.stop_ts))
-          })
-        : null
+      const currentCruise = this.findCurrentCruise()
 
       if (this.state.activeCruise === currentCruise && this.state.activeLowering === null) {
         const cruiseLowerings = currentCruise
@@ -105,12 +95,7 @@ class CruiseMenu extends Component {
 
     if (this.state.cruiseLowerings !== prevState.cruiseLowerings) {
       // if the active cruise was selected, set the active lowering to the most recent lowering
-      const currentCruise = this.props.cruises
-        ? this.props.cruises.find((cruise) => {
-            const now = moment.utc()
-            return now.isBetween(moment.utc(cruise.start_ts), moment.utc(cruise.stop_ts))
-          })
-        : null
+      const currentCruise = this.findCurrentCruise()
 
       this.setState({
         activeLowering:
@@ -119,6 +104,12 @@ class CruiseMenu extends Component {
             : null
       })
     }
+  }
+
+  findCurrentCruise() {
+    if (!this.props.cruises) return null
+    const now = moment.utc()
+    return this.props.cruises.find((cruise) => now.isBetween(moment.utc(cruise.start_ts), moment.utc(cruise.stop_ts))) || null
   }
 
   handleYearSelect(activeYear) {

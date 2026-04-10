@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Dropdown, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { connect } from 'react-redux'
 import {
   get_event_aux_data,
   get_event_aux_data_by_lowering,
@@ -19,82 +18,43 @@ const dateFormat = 'YYYYMMDD'
 const timeFormat = 'HHmm'
 
 class ExportDropdown extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      id: this.props.id ? this.props.id : 'dropdown-download',
-      prefix: this.props.prefix ? this.props.prefix : null,
-      sort: this.props.sort ? this.props.sort : null
+  buildQuery(exportFormat = null) {
+    const eventFilterValue = this.props.eventFilter.value ? this.props.eventFilter.value : this.props.hideASNAP ? '!ASNAP' : null
+    const query = {
+      ...this.props.eventFilter,
+      value: eventFilterValue ? eventFilterValue.split(',') : null,
+      author: this.props.eventFilter.author ? this.props.eventFilter.author.split(',') : null,
+      sort: this.props.sort
     }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.prefix !== prevProps.prefix) {
-      this.setState({ prefix: this.props.prefix })
+    if (exportFormat) {
+      query.format = exportFormat
+      query.add_record_ids = exportFormat === 'json'
     }
-
-    if (this.props.sort !== prevProps.sort) {
-      this.setState({ sort: this.props.sort })
-    }
+    return query
   }
 
   async fetchEvents(exportFormat) {
-    let eventFilter_value = this.props.eventFilter.value ? this.props.eventFilter.value : this.props.hideASNAP ? '!ASNAP' : null
-
-    const query = {
-      ...this.props.eventFilter,
-      format: exportFormat,
-      add_record_ids: exportFormat === 'json',
-      value: eventFilter_value ? eventFilter_value.split(',') : null,
-      author: this.props.eventFilter.author ? this.props.eventFilter.author.split(',') : null,
-      sort: this.state.sort
-    }
-
-    if (this.props.loweringID) {
-      return await get_events_by_lowering(query, this.props.loweringID)
-    }
+    const query = this.buildQuery(exportFormat)
+    if (this.props.loweringID) return await get_events_by_lowering(query, this.props.loweringID)
     return await get_events(query)
   }
 
   async fetchEventAuxData() {
-    let eventFilter_value = this.props.eventFilter.value ? this.props.eventFilter.value : this.props.hideASNAP ? '!ASNAP' : null
-
-    const query = {
-      ...this.props.eventFilter,
-      value: eventFilter_value ? eventFilter_value.split(',') : null,
-      author: this.props.eventFilter.author ? this.props.eventFilter.author.split(',') : null,
-      sort: this.state.sort
-    }
-
-    if (this.props.loweringID) {
-      return await get_event_aux_data_by_lowering(query, this.props.loweringID)
-    }
+    const query = this.buildQuery()
+    if (this.props.loweringID) return await get_event_aux_data_by_lowering(query, this.props.loweringID)
     return await get_event_aux_data(query)
   }
 
   async fetchEventsWithAuxData(exportFormat) {
-    let eventFilter_value = this.props.eventFilter.value ? this.props.eventFilter.value : this.props.hideASNAP ? '!ASNAP' : null
-
-    const query = {
-      ...this.props.eventFilter,
-      format: exportFormat,
-      add_record_ids: exportFormat === 'json',
-      value: eventFilter_value ? eventFilter_value.split(',') : null,
-      author: this.props.eventFilter.author ? this.props.eventFilter.author.split(',') : null,
-      sort: this.state.sort
-    }
-
-    if (this.props.loweringID) {
-      return await get_event_exports_by_lowering(query, this.props.loweringID)
-    }
+    const query = this.buildQuery(exportFormat)
+    if (this.props.loweringID) return await get_event_exports_by_lowering(query, this.props.loweringID)
     return await get_event_exports(query)
   }
 
   exportEventsWithAuxData(format = 'json') {
     this.fetchEventsWithAuxData(format)
       .then((results) => {
-        const prefix = this.state.prefix ? this.state.prefix : moment.utc(results[0].ts).format(dateFormat + '_' + timeFormat)
+        const prefix = this.props.prefix ? this.props.prefix : moment.utc(results[0].ts).format(dateFormat + '_' + timeFormat)
         fileDownload(format == 'json' ? JSON.stringify(results) : results, `${prefix}_sealog_export.${format}`)
       })
       .catch((error) => {
@@ -105,7 +65,7 @@ class ExportDropdown extends Component {
   exportEvents(format = 'json') {
     this.fetchEvents(format)
       .then((results) => {
-        const prefix = this.state.prefix ? this.state.prefix : moment.utc(results[0].ts).format(dateFormat + '_' + timeFormat)
+        const prefix = this.props.prefix ? this.props.prefix : moment.utc(results[0].ts).format(dateFormat + '_' + timeFormat)
         fileDownload(format == 'json' ? JSON.stringify(results) : results, `${prefix}_sealog_eventExport.${format}`)
       })
       .catch((error) => {
@@ -116,7 +76,7 @@ class ExportDropdown extends Component {
   exportAuxData() {
     this.fetchEventAuxData()
       .then((results) => {
-        const prefix = this.state.prefix ? this.state.prefix : moment.utc(results[0].ts).format(dateFormat + '_' + timeFormat)
+        const prefix = this.props.prefix ? this.props.prefix : moment.utc(results[0].ts).format(dateFormat + '_' + timeFormat)
         fileDownload(JSON.stringify(results), `${prefix}_sealog_auxDataExport.json`)
       })
       .catch((error) => {
@@ -129,7 +89,7 @@ class ExportDropdown extends Component {
     const className = this.props.className ? this.props.className : 'p-0'
 
     return (
-      <Dropdown as={'span'} id={this.state.id}>
+      <Dropdown as={'span'} id={this.props.id || 'dropdown-download'}>
         <Dropdown.Toggle
           className={className}
           style={{ position: 'relative', bottom: '2px' }}
@@ -180,4 +140,4 @@ ExportDropdown.propTypes = {
   className: PropTypes.string
 }
 
-export default connect(null, null)(ExportDropdown)
+export default ExportDropdown

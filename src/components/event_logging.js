@@ -8,13 +8,7 @@ import EventCommentModal from './event_comment_modal'
 import { Row, Col } from 'react-bootstrap'
 import EventShowDetailsModal from './event_show_details_modal'
 
-import * as mapDispatchToProps from '../actions'
-
 class EventLogging extends Component {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     if (this.props.roles && this.props.roles.some((item) => ['admin', 'cruise_manager', 'event_logger'].includes(item))) {
       return (
@@ -64,4 +58,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventLogging)
+export default connect(mapStateToProps)(EventLogging)

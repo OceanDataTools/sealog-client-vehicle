@@ -12,10 +12,10 @@ class GalleryTab extends Component {
 
     this.state = {
       activePage: 1,
-      selectedPage: 1,
-      paginationTimer: null
+      selectedPage: 1
     }
 
+    this.paginationTimer = null
     this.handlePageSelect = this.handlePageSelect.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
   }
@@ -32,10 +32,7 @@ class GalleryTab extends Component {
   }
 
   componentWillUnmount() {
-    if (this.state.paginationTimer) {
-      clearInterval(this.state.paginationTimer)
-    }
-
+    clearTimeout(this.paginationTimer)
     document.removeEventListener('keydown', this.handleKeyDown)
   }
 
@@ -56,14 +53,10 @@ class GalleryTab extends Component {
 
   handlePageSelect(page) {
     this.setState({ selectedPage: page })
-    clearTimeout(this.state.paginationTimer)
-    this.setState({
-      paginationTimer: setTimeout(() => {
-        this.setState({
-          activePage: this.state.selectedPage
-        })
-      }, 500)
-    })
+    clearTimeout(this.paginationTimer)
+    this.paginationTimer = setTimeout(() => {
+      this.setState({ activePage: this.state.selectedPage })
+    }, 500)
   }
 
   handleEventShowDetailsModal(event_id) {

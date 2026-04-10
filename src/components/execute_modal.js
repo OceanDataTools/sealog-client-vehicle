@@ -26,6 +26,10 @@ class ExecuteModal extends Component {
     this.connectToWS()
   }
 
+  componentWillUnmount() {
+    this.client.disconnect()
+  }
+
   async connectToWS() {
     this.client.onConnect = () => {
       this.setState({ client_id: this.client.id })

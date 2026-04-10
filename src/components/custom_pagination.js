@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Pagination } from 'react-bootstrap'
 import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
 
 class CustomPagination extends Component {
   constructor(props) {
@@ -90,4 +89,4 @@ CustomPagination.propTypes = {
   className: PropTypes.string
 }
 
-export default connect(null, null)(CustomPagination)
+export default CustomPagination

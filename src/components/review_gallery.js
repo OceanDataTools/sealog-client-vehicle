@@ -17,7 +17,6 @@ class ReviewGallery extends Component {
     this.state = {
       fetching: false,
       aux_data: [],
-      replayEventIndex: 0,
       maxImagesPerPage: 16
     }
 
@@ -34,12 +33,6 @@ class ReviewGallery extends Component {
       this.props.initReviewReplay(this.props.match.params.id)
       const cruise = await get_cruise_by_lowering(this.props.match.params.id)
       this.props.initCruise(cruise.id)
-    } else {
-      const eventIndex = this.props.event.events.findIndex((event) => event.id === this.props.event.selected_event.id)
-      this.setState({
-        replayEventIndex: eventIndex,
-        activePage: Math.ceil((eventIndex + 1) / this.state.maxImagesPerPage)
-      })
     }
   }
 

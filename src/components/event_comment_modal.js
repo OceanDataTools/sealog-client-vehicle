@@ -14,6 +14,7 @@ import {
   IMAGE_ROUTE
 } from '../api'
 import { API_ROOT_URL } from '../client_settings'
+import { getImageUrl } from '../utils'
 import { connectModal } from 'redux-modal'
 import { reduxForm, Field } from 'redux-form'
 import { renderTextArea } from './form_elements'
@@ -158,11 +159,16 @@ class EventCommentModal extends Component {
   }
 
   renderFiles() {
-    if (this.state.files) {
+    if (this.state.files && this.state.files.length) {
       let files = this.state.files.map((file, index) => {
         return (
-          <div className='pl-2' key={`file_${index}`}>
-            {file}
+          <div key={`file_${index}`} className='d-flex align-items-center mb-1'>
+            <img
+              src={getImageUrl(file)}
+              alt={file}
+              style={{ width: '48px', height: '48px', objectFit: 'cover', marginRight: '8px', borderRadius: '4px' }}
+            />
+            <span className='me-2 text-truncate'>{file}</span>
             <FontAwesomeIcon onClick={() => this.handleDelete(file)} className='text-danger' icon='trash' fixedWidth />
           </div>
         )

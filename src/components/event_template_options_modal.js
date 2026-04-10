@@ -17,7 +17,7 @@ import {
   renderTextField
 } from './form_elements'
 import { Button, Modal } from 'react-bootstrap'
-import { authorizationHeader, IMAGE_ROUTE } from '../api'
+import { authorizationHeader, create_event_aux_data, IMAGE_ROUTE } from '../api'
 import { API_ROOT_URL } from '../client_settings'
 
 registerPlugin(FilePondPluginFileValidateType)
@@ -54,7 +54,7 @@ class EventTemplateOptionsModal extends Component {
     this.props.initialize({ id: this.state.event_id, ts, event_options })
   }
 
-  handleFormSubmit(formProps) {
+  async handleFormSubmit(formProps) {
     formProps.event_free_text = formProps.event_free_text ? formProps.event_free_text : ''
 
     if (formProps.ts) {
@@ -101,17 +101,22 @@ class EventTemplateOptionsModal extends Component {
       }
     })
 
-    formProps.event_files = [
-      ...new Set(
-        this.pond.getFiles().map((file) => {
-          return file.filename
-        })
-      )
-    ]
+    const event_files = [...new Set(this.pond.getFiles().map((file) => file.filename))]
 
     //Submit event
     if (this.props.event) {
-      this.props.handleUpdateEvent(formProps)
+      await this.props.handleUpdateEvent(formProps)
+
+      if (event_files.length) {
+        await create_event_aux_data({
+          event_id: this.props.event.id,
+          data_source: 'eventFileAttachments',
+          data_array: event_files.flatMap((filename) => [
+            { data_name: 'camera_name', data_value: filename },
+            { data_name: 'filename', data_value: filename }
+          ])
+        })
+      }
     }
     this.props.handleHide()
   }

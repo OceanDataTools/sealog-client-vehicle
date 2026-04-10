@@ -11,7 +11,8 @@ import ImageryCards from './imagery_cards'
 import ImagePreviewModal from './image_preview_modal'
 import { Client } from '@hapi/nes/lib/client'
 import { EXCLUDE_AUX_DATA_SOURCES, IMAGES_AUX_DATA_SOURCES, AUX_DATA_SORT_ORDER, WS_ROOT_URL } from '../client_settings'
-import { authorizationHeader, get_cruises, get_events, get_event_exports, handle_image_file_download } from '../api'
+import { get_events, get_event_exports, handle_image_file_download } from '../api'
+import { buildEventQuery, connectWSClient, resolveStartTS } from '../utils'
 import * as mapDispatchToProps from '../actions'
 
 const excludeAuxDataSources = Array.from(new Set([...EXCLUDE_AUX_DATA_SOURCES, ...IMAGES_AUX_DATA_SOURCES]))
@@ -49,8 +50,6 @@ class EventHistory extends Component {
     this.toggleEventHistory = this.toggleEventHistory.bind(this)
     this.toggleExpandedEventHistory = this.toggleExpandedEventHistory.bind(this)
     this.toggleNewEventDetails = this.toggleNewEventDetails.bind(this)
-
-    this.wsRetryCount = 0
   }
 
   componentDidMount() {
@@ -67,13 +66,11 @@ class EventHistory extends Component {
     }
 
     if (prevState.eventFilter !== this.state.eventFilter) {
-      this.setState({ activePage: 1 })
-      this.fetchEvents()
+      this.setState({ activePage: 1 }, () => this.fetchEvents())
     }
 
     if (prevState.hideASNAP !== this.state.hideASNAP) {
-      this.setState({ activePage: 1 })
-      this.fetchEvents()
+      this.setState({ activePage: 1 }, () => this.fetchEvents())
     }
 
     if (prevState.showNewEventDetails !== this.state.showNewEventDetails && this.state.showNewEventDetails && this.state.events.length) {
@@ -83,8 +80,15 @@ class EventHistory extends Component {
     if (prevState.events !== this.state.events) {
       if (this.state.events.length === 0) {
         this.setState({ event: {} })
+      } else if (this.state.activePage > 1) {
+        this.fetchEventExport(null)
       } else if (prevState.event.id !== this.state.events[0].id) {
         this.fetchEventExport(this.state.events[0].id)
+      } else {
+        const cur_event = this.state.events.find((event) => event.id === this.state.event.id)
+        if (cur_event) {
+          this.fetchEventExport(cur_event.id)
+        }
       }
     }
   }
@@ -96,82 +100,38 @@ class EventHistory extends Component {
   }
 
   async connectToWS() {
-    const MAX_RETRIES = 3
-    const BASE_DELAY = 500 // 250ms
-
-    try {
-      await this.client.connect({
-        auth: authorizationHeader
-      })
-
-      const updateHandler = async (update) => {
-        if (this.state.events.length === 0) {
+    const updateHandler = async (update) => {
+      if (this.state.events.length === 0) {
+        await this.fetchEvents()
+      } else {
+        const oldest_ts = Moment(this.state.events.slice(-1)[0].ts)
+        const update_ts = Moment(update.ts)
+        if (update_ts > oldest_ts) {
           await this.fetchEvents()
-        } else {
-          const oldest_ts = Moment(this.state.events.slice(-1)[0].ts)
-          const update_ts = Moment(update.ts)
-
-          if (update_ts > oldest_ts) {
-            await this.fetchEvents()
-          }
         }
       }
-
-      const updateAuxDataHandler = async (update) => {
-        const event = (await get_events({}, update.event_id)) || {}
-        if (event.id) {
-          updateHandler(event)
-        }
-      }
-
-      await this.client.subscribe('/ws/status/newEvents', updateHandler)
-      await this.client.subscribe('/ws/status/updateEvents', updateHandler)
-      await this.client.subscribe('/ws/status/deleteEvents', updateHandler)
-      await this.client.subscribe('/ws/status/newEventAuxData', updateAuxDataHandler)
-      await this.client.subscribe('/ws/status/updateEventAuxData', updateAuxDataHandler)
-    } catch (error) {
-      console.error('Problem connecting to websocket subscriptions')
-      console.debug(error)
-
-      if (this.wsRetryCount >= MAX_RETRIES) {
-        console.error('Max WS retries exceeded')
-        return
-      }
-
-      // exponential backoff
-      const delay = BASE_DELAY * Math.pow(2, this.wsRetryCount)
-
-      console.debug(`Retrying websocket in ${delay}ms`)
-
-      await new Promise((resolve) => setTimeout(resolve, delay))
-
-      return this.connectToWS(this.wsRetryCount + 1)
     }
+
+    const updateAuxDataHandler = async (update) => {
+      const event = (await get_events({}, update.event_id)) || {}
+      if (event.id) {
+        updateHandler(event)
+      }
+    }
+
+    await connectWSClient(this.client, {
+      '/ws/status/newEvents': updateHandler,
+      '/ws/status/updateEvents': updateHandler,
+      '/ws/status/deleteEvents': updateHandler,
+      '/ws/status/newEventAuxData': updateAuxDataHandler,
+      '/ws/status/updateEventAuxData': updateAuxDataHandler
+    })
   }
 
   async initStartTS() {
-    if (!this.props.roles) {
-      return
-    }
-
-    if (this.props.roles && !this.props.roles.includes('admin')) {
-      let query = {
-        startTS: new Date().toISOString()
-      }
-
-      query.stopTS = query.startTS
-      const cruises = await get_cruises(query)
-
-      if (cruises.length) {
-        this.setState({ startTS: cruises[0].start_ts })
-      } else {
-        const cruises = await get_cruises()
-        if (cruises.length) {
-          this.setState({ startTS: cruises[cruises.length - 1].stop_ts })
-        }
-      }
-    }
-
+    const startTS = await resolveStartTS(this.props.roles)
+    if (startTS === undefined) return
+    if (startTS !== null) this.setState({ startTS })
     this.fetchEvents()
   }
 
@@ -183,22 +143,16 @@ class EventHistory extends Component {
       return
     }
 
-    let eventFilter_value = this.state.eventFilter ? this.state.eventFilter : this.state.hideASNAP ? '!ASNAP' : null
-
-    let query = {
+    const query = buildEventQuery({
       startTS: this.state.startTS,
-      value: eventFilter_value ? eventFilter_value.split(',') : null,
-      sort: 'newest',
-      offset: (this.state.activePage - 1) * maxEventsPerPage,
-      limit: maxEventsPerPage
-    }
+      eventFilterValue: this.state.eventFilter,
+      hideASNAP: this.state.hideASNAP,
+      activePage: this.state.activePage,
+      maxPerPage: maxEventsPerPage
+    })
 
     const events = await get_events(query)
     this.setState({ events, fetching: false })
-    const cur_event = events.find((event) => event.id === this.state.event.id)
-    if (cur_event) {
-      this.fetchEventExport(cur_event.id)
-    }
   }
 
   async fetchEventExport(event_id) {

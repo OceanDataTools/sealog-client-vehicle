@@ -4,7 +4,7 @@ import { Alert, Button, Tab, Tabs } from 'react-bootstrap'
 import PropTypes from 'prop-types'
 import EventTemplateOptionsModal from './event_template_options_modal'
 import { Client } from '@hapi/nes/lib/client'
-import { authorizationHeader } from '../api'
+import { connectWSClient } from '../utils'
 import cookies from '../cookies'
 import { WS_ROOT_URL, CATEGORY_SORT_ORDER } from '../client_settings'
 import * as mapDispatchToProps from '../actions'
@@ -67,26 +67,15 @@ class EventTemplateList extends Component {
   }
 
   async connectToWS() {
-    try {
-      await this.client.connect({
-        auth: authorizationHeader
-      })
-
-      const deleteHandler = () => {
-        this.props.fetchEventTemplates()
-      }
-
-      const updateHandler = () => {
-        this.props.fetchEventTemplates()
-      }
-
-      this.client.subscribe('/ws/status/newEventTemplates', updateHandler)
-      this.client.subscribe('/ws/status/updateEventTemplates', updateHandler)
-      this.client.subscribe('/ws/status/deleteEventTemplates', deleteHandler)
-    } catch (error) {
-      console.error('Problem connecting to websocket subscriptions')
-      console.debug(error)
+    const updateHandler = () => {
+      this.props.fetchEventTemplates()
     }
+
+    await connectWSClient(this.client, {
+      '/ws/status/newEventTemplates': updateHandler,
+      '/ws/status/updateEventTemplates': updateHandler,
+      '/ws/status/deleteEventTemplates': updateHandler
+    })
   }
 
   async handleEventSubmit(event_template, e = null) {

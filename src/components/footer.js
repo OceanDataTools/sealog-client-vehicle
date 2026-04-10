@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import prettyBytes from 'pretty-bytes'
 import { Nav, Navbar, NavbarCollapse } from 'react-bootstrap'
-import { authorizationHeader, get_custom_vars } from '../api'
+import { get_custom_vars } from '../api'
+import { connectWSClient } from '../utils'
 import { WS_ROOT_URL, DISABLE_EVENT_LOGGING } from '../client_settings'
 import * as mapDispatchToProps from '../actions'
 
@@ -52,24 +53,17 @@ class Footer extends Component {
   }
 
   async connectToWS() {
-    try {
-      await this.client.connect({
-        auth: authorizationHeader
-      })
-
-      const updateHandler = (update) => {
-        if (this.trackedCustomVars.includes(update.custom_var_name)) {
-          const new_state = {}
-          new_state[update.custom_var_name] = update.custom_var_value
-          this.setState(new_state)
-        }
+    const updateHandler = (update) => {
+      if (this.trackedCustomVars.includes(update.custom_var_name)) {
+        const new_state = {}
+        new_state[update.custom_var_name] = update.custom_var_value
+        this.setState(new_state)
       }
-
-      this.client.subscribe('/ws/status/updateCustomVars', updateHandler)
-    } catch (error) {
-      console.error('Problem connecting to websocket subscriptions')
-      console.debug(error)
     }
+
+    await connectWSClient(this.client, {
+      '/ws/status/updateCustomVars': updateHandler
+    })
   }
 
   async fetchCustomVars() {
