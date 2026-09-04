@@ -89,7 +89,7 @@ class EventTemplates extends Component {
   handleEventTemplateDuplicate(template) {
     const copy = { ...template }
     delete copy.id
-    this.props.createEventTemplate({ ...copy, event_name: `Copy of ${template.event_name}` })
+    this.props.createEventTemplate({ ...copy, event_name: `${template.event_name} Copy` })
   }
 
   handleEventTemplateTest(event_template) {
