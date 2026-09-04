@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.13] - 2026-09-04
+
+### Fixed
+- **Deleted event attachments not removed from other clients' view** — the server now publishes a `deleteEventAuxData` websocket event when an aux_data record is deleted, but `EventHistory` only subscribed to the `new`/`update` variants, so a deleted attachment lingered in the UI for other connected clients until they manually refreshed
+
+### Security
+- Bumped `nanoid` to 3.3.18, resolving an indefinite-loop DoS advisory (GHSA-2v37-7h3g-55p8)
+
 ## [2.4.12] - 2026-08-18
 
 ### Added
