@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Bumped `nanoid` to 3.3.18, resolving an indefinite-loop DoS advisory (GHSA-2v37-7h3g-55p8)
 
+### Internal
+- Updated `axios`, `@fontsource/roboto`, `css-loader`, `html-webpack-plugin`, `prettier`, `sass`, `webpack`, and `webpack-cli` to their latest versions within existing semver ranges
+
 ## [2.4.12] - 2026-08-18
 
 ### Added
