@@ -81,7 +81,7 @@ class GalleryTab extends Component {
         index < this.state.activePage * this.props.maxImagesPerPage
       ) {
         return (
-          <Col className='m-0 p-1' key={`${imagesSource}_${image.event_id}`} xs={12} sm={6} md={4} lg={3}>
+          <Col className='m-0 p-1' key={`${imagesSource}_${image.event_id}_${image.filepath}`} xs={12} sm={6} md={4} lg={3}>
             {this.renderImage(imagesSource, image.filepath, () => this.handleEventShowDetailsModal(image.event_id))}
           </Col>
         )
