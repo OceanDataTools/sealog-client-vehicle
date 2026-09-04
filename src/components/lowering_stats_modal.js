@@ -336,6 +336,8 @@ class LoweringStatsModal extends Component {
   setPlotLines() {
     let xAxis = this.state.depthChartOptions.xAxis
     xAxis.plotLines = []
+    xAxis.min = moment.utc(this.state.milestones.start_ts).valueOf()
+    xAxis.max = moment.utc(this.state.milestones.stop_ts).valueOf()
 
     for (const [key, value] of Object.entries(this.state.milestones)) {
       if (value) {
