@@ -145,7 +145,10 @@ class EventTemplates extends Component {
     event_free_text_required = false,
     event_options = [],
     system_template = false,
-    template_categories = []
+    template_categories = [],
+    admin_only = false,
+    disabled = false,
+    event_button_color
   }) {
     let result = {
       skipped: false,
@@ -168,7 +171,10 @@ class EventTemplates extends Component {
       event_free_text_required,
       event_options,
       system_template,
-      template_categories: template_categories.map((category) => category.trim().toLowerCase())
+      template_categories: template_categories.map((category) => category.trim().toLowerCase()),
+      admin_only,
+      disabled,
+      event_button_color
     })
 
     if (response.success) {
