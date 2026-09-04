@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Template JSON import dropped visibility/styling fields** — exported templates carry `admin_only`, `disabled`, and `event_button_color`, but re-importing them silently reset `admin_only`/`disabled` to `false` and dropped `event_button_color`, since the import path only forwarded a subset of fields to the server (#60, thanks @schmidtocean)
 - **Long custom vocabulary could crash clipboard export** — cruise/lowering clipboard formatting right-pads labels to a fixed column width sized for the default "Cruise"/"Lowering" wording; a longer `CUSTOM_CRUISE_NAME`/`CUSTOM_LOWERING_NAME` made the padding count go negative, and `String.repeat()` throws on a negative count (#58, thanks @schmidtocean)
 - **Depth plot domain didn't match lowering start/stop** — the milestones/stats depth chart had no explicit `xAxis` range, so it scaled to the extent of the depth data instead of the lowering's actual start/stop, making the plot's visible range inconsistent with the milestones shown alongside it (#22)
+- **`SERVER_TLS` missing from `client_settings.js.dist` export** — the variable was defined but never exported, so any deployment configured off the `.dist` template had `SERVER_TLS` come through as `undefined`
+- **Duplicated event template name prepended "Copy of"** — `handleEventTemplateDuplicate` now appends " Copy" to the button name instead (#73)
 
 ### Security
 - Bumped `nanoid` to 3.3.18, resolving an indefinite-loop DoS advisory (GHSA-2v37-7h3g-55p8)
