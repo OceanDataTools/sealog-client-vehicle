@@ -345,12 +345,12 @@ EventTemplateOptionsModal.propTypes = {
 const validate = (formProps) => {
   const errors = {}
 
-  if (formProps.event_ts === '') {
-    errors.event_ts = 'Required'
+  if (formProps.ts === '') {
+    errors.ts = 'Required'
   }
 
-  if (formProps.event_ts !== '' && !moment.utc(formProps.event_ts).isValid()) {
-    errors.event_ts = 'Invalid timestamp'
+  if (formProps.ts !== '' && !moment.utc(formProps.ts).isValid()) {
+    errors.ts = 'Invalid timestamp'
   }
 
   return errors
