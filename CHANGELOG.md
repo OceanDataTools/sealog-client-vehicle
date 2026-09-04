@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Pressing Enter cleared gallery searches** — the gallery search field lived in a form with no submit handler, so Enter reloaded the page and cleared the active search even though results already update live as you type (#69, thanks @schmidtocean)
 - **Imported template categories bypassed case normalization** — the event template form lowercases `template_categories` on save, but templates imported from JSON went straight to `create_event_template` and skipped that step, letting mixed-case categories (e.g. imported `ROV` alongside form-edited `rov`) split what should be one category (#59)
 - **Gallery attachment keys could collide for events with multiple images** — gallery items were keyed only by data source and event id, so an event with more than one attachment in the same source could get duplicate React keys, letting the wrong thumbnail be reused on re-render; the key now also includes the attachment's filepath (#57, thanks @schmidtocean)
+- **Template JSON import dropped visibility/styling fields** — exported templates carry `admin_only`, `disabled`, and `event_button_color`, but re-importing them silently reset `admin_only`/`disabled` to `false` and dropped `event_button_color`, since the import path only forwarded a subset of fields to the server (#60, thanks @schmidtocean)
 
 ### Security
 - Bumped `nanoid` to 3.3.18, resolving an indefinite-loop DoS advisory (GHSA-2v37-7h3g-55p8)
