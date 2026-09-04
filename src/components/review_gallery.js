@@ -163,7 +163,7 @@ class ReviewGallery extends Component {
                 {imgCountOptions}
               </Form.Select>
             </Form.Group>
-            <Form style={{ marginTop: '-4px' }} className='float-end me-2'>
+            <Form style={{ marginTop: '-4px' }} className='float-end me-2' onSubmit={(event) => event.preventDefault()}>
               <FormControl size='sm' type='text' placeholder='Search' onChange={this.handleSearchChange} />
             </Form>
             <span className='me-2 text-primary float-end clickable' style={{ fontSize: '.85rem' }} onClick={this.toggleASNAP}>
