@@ -161,26 +161,27 @@ class EventCommentModal extends Component {
   }
 
   async handleDelete(file) {
-    handle_image_file_delete(file)
-    const updated_aux_data = { ...this.state.event_aux_data }
-    delete updated_aux_data['id']
-    await delete_event_aux_data(this.state.event_aux_data['id'])
+    await handle_image_file_delete(file, async () => {
+      const updated_aux_data = { ...this.state.event_aux_data }
+      delete updated_aux_data['id']
+      await delete_event_aux_data(this.state.event_aux_data['id'])
 
-    // update aux_data_record — remove the source+filename pair where filename matches
-    const update_data_array = []
-    for (let i = 0; i + 1 < updated_aux_data.data_array.length; i += 2) {
-      if (updated_aux_data.data_array[i + 1].data_value !== file) {
-        update_data_array.push(updated_aux_data.data_array[i])
-        update_data_array.push(updated_aux_data.data_array[i + 1])
+      // update aux_data_record — remove the source+filename pair where filename matches
+      const update_data_array = []
+      for (let i = 0; i + 1 < updated_aux_data.data_array.length; i += 2) {
+        if (updated_aux_data.data_array[i + 1].data_value !== file) {
+          update_data_array.push(updated_aux_data.data_array[i])
+          update_data_array.push(updated_aux_data.data_array[i + 1])
+        }
       }
-    }
 
-    if (update_data_array.length) {
-      await create_event_aux_data({ ...updated_aux_data, data_array: update_data_array })
-    }
+      if (update_data_array.length) {
+        await create_event_aux_data({ ...updated_aux_data, data_array: update_data_array })
+      }
 
-    this.set_event_attachments(this.props.event)
-    this.props.handleUpdateEvent(this.props.event)
+      this.set_event_attachments(this.props.event)
+      this.props.handleUpdateEvent(this.props.event)
+    })
   }
 
   renderFiles() {

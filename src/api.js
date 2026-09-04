@@ -742,7 +742,7 @@ export const handle_lowering_file_download = async (filename, lowering_id) => {
 }
 
 export const handle_image_file_delete = async (filename, callback) => {
-  await _handleFileDelete(filename, IMAGE_ROUTE, callback)
+  await _handleFileDelete(filename, IMAGE_ROUTE, null, callback)
 }
 
 export const handle_image_file_download = async (image_path) => {
