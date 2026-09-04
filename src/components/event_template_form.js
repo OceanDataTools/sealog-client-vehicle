@@ -284,6 +284,9 @@ class EventTemplateForm extends Component {
                 <Field name='event_name' component={renderTextField} label='Button Name' required={true} sm={6} lg={6} />
                 <Field name='event_value' component={renderTextField} label='Event Value' required={true} sm={6} lg={6} />
               </Row>
+              <div className='col-12' style={{ marginTop: '-10px', marginBottom: '10px' }}>
+                <small className='text-muted'>Button Name is not included in data</small>
+              </div>
               <Row>
                 <Field
                   name='event_button_color'
