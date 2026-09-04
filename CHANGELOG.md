@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.4.13] - 2026-09-04
 
+### Added
+- **Warning that button name isn't stored** — a note beside the Button Name and Event Value fields in the event template form clarifies that the button label isn't part of the saved event data or exports (#63, thanks @schmidtocean)
+
 ### Fixed
 - **Deleted event attachments not removed from other clients' view** — the server now publishes a `deleteEventAuxData` websocket event when an aux_data record is deleted, but `EventHistory` only subscribed to the `new`/`update` variants, so a deleted attachment lingered in the UI for other connected clients until they manually refreshed
+- **Event timestamp validation used the obsolete `event_ts` field** — the event-options modal stores a manually adjusted timestamp in `ts`, but its validator still read/wrote `event_ts`, so an invalid manual timestamp reached the server unvalidated and could leave a newly created event without its `event_options` and no useful error shown (#54, thanks @schmidtocean)
+- **Failed attachment deletion could still remove its metadata** — `handle_image_file_delete` passed its callback into the file-delete helper's `id` argument, and the caller removed the aux_data record without waiting for the file request to complete, so a failed physical file delete could still leave the attachment removed from Sealog while the file remained on disk (#61, thanks @schmidtocean)
+- **Pressing Enter cleared gallery searches** — the gallery search field lived in a form with no submit handler, so Enter reloaded the page and cleared the active search even though results already update live as you type (#69, thanks @schmidtocean)
 
 ### Security
 - Bumped `nanoid` to 3.3.18, resolving an indefinite-loop DoS advisory (GHSA-2v37-7h3g-55p8)
