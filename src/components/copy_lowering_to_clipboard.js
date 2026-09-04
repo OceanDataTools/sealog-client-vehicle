@@ -68,14 +68,14 @@ class CopyLoweringToClipboard extends Component {
 
       let text = ''
 
-      text += `${_Lowering_} ID:${' '.repeat(9 - _Lowering_.length)}${this.props.lowering.lowering_id}\n`
+      text += `${_Lowering_} ID:${' '.repeat(Math.max(9 - _Lowering_.length, 1))}${this.props.lowering.lowering_id}\n`
       text += this.props.lowering.lowering_additional_meta.lowering_description
         ? `Description: ${this.props.lowering.lowering_additional_meta.lowering_description}\n`
         : ''
       text += '\n'
       text += `Location: ${this.props.lowering.lowering_location}\n`
       text += '\n'
-      text += `Start of ${_Lowering_}:${' '.repeat(9 - _Lowering_.length)}${this.props.lowering.start_ts}\n`
+      text += `Start of ${_Lowering_}:${' '.repeat(Math.max(9 - _Lowering_.length, 1))}${this.props.lowering.start_ts}\n`
       text += loweringDescendingTime
         ? `Descending:        ${this.props.lowering.lowering_additional_meta.milestones[LOWERING_DESCENT[0]]}\n`
         : ''
@@ -88,7 +88,7 @@ class CopyLoweringToClipboard extends Component {
       text += loweringOnSurfaceTime
         ? `On Surface:        ${this.props.lowering.lowering_additional_meta.milestones[LOWERING_ASCENT[1]]}\n`
         : ''
-      text += `End of ${_Lowering_}:${' '.repeat(11 - _Lowering_.length)}${this.props.lowering.stop_ts}\n`
+      text += `End of ${_Lowering_}:${' '.repeat(Math.max(11 - _Lowering_.length, 1))}${this.props.lowering.stop_ts}\n`
       text += '\n'
       text += deck2DeckDurationValue
         ? `Deck-to-Deck: ${moment.duration(deck2DeckDurationValue).format('d [days] h [hours] m [minutes]')}\n`

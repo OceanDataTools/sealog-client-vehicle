@@ -36,9 +36,9 @@ class CopyCruiseToClipboard extends Component {
       let cruiseDurationValue = cruiseStopTime.diff(cruiseStartTime)
 
       let text = ''
-      text += `${_Cruise_} ID:${' '.repeat(13 - _Cruise_.length)}${this.props.cruise.cruise_id}\n`
+      text += `${_Cruise_} ID:${' '.repeat(Math.max(13 - _Cruise_.length, 1))}${this.props.cruise.cruise_id}\n`
       text += this.props.cruise.cruise_additional_meta.cruise_name
-        ? `${_Cruise_} Name:${' '.repeat(11 - _Cruise_.length)}${this.props.cruise.cruise_additional_meta.cruise_name}\n`
+        ? `${_Cruise_} Name:${' '.repeat(Math.max(11 - _Cruise_.length, 1))}${this.props.cruise.cruise_additional_meta.cruise_name}\n`
         : ''
       text += this.props.cruise.cruise_additional_meta.cruise_pi
         ? `Chief Scientist: ${this.props.cruise.cruise_additional_meta.cruise_pi}\n`
