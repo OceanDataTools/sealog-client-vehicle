@@ -168,7 +168,7 @@ class EventTemplates extends Component {
       event_free_text_required,
       event_options,
       system_template,
-      template_categories
+      template_categories: template_categories.map((category) => category.trim().toLowerCase())
     })
 
     if (response.success) {
