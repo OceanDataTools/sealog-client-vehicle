@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.13] - 2026-09-04
+
+### Added
+- **Warning that button name isn't stored** — a note beside the Button Name and Event Value fields in the event template form clarifies that the button label isn't part of the saved event data or exports (#63, thanks @schmidtocean)
+
+### Fixed
+- **Deleted event attachments not removed from other clients' view** — the server now publishes a `deleteEventAuxData` websocket event when an aux_data record is deleted, but `EventHistory` only subscribed to the `new`/`update` variants, so a deleted attachment lingered in the UI for other connected clients until they manually refreshed
+- **Event timestamp validation used the obsolete `event_ts` field** — the event-options modal stores a manually adjusted timestamp in `ts`, but its validator still read/wrote `event_ts`, so an invalid manual timestamp reached the server unvalidated and could leave a newly created event without its `event_options` and no useful error shown (#54, thanks @schmidtocean)
+- **Failed attachment deletion could still remove its metadata** — `handle_image_file_delete` passed its callback into the file-delete helper's `id` argument, and the caller removed the aux_data record without waiting for the file request to complete, so a failed physical file delete could still leave the attachment removed from Sealog while the file remained on disk (#61, thanks @schmidtocean)
+- **Pressing Enter cleared gallery searches** — the gallery search field lived in a form with no submit handler, so Enter reloaded the page and cleared the active search even though results already update live as you type (#69, thanks @schmidtocean)
+- **Imported template categories bypassed case normalization** — the event template form lowercases `template_categories` on save, but templates imported from JSON went straight to `create_event_template` and skipped that step, letting mixed-case categories (e.g. imported `ROV` alongside form-edited `rov`) split what should be one category (#59)
+- **Gallery attachment keys could collide for events with multiple images** — gallery items were keyed only by data source and event id, so an event with more than one attachment in the same source could get duplicate React keys, letting the wrong thumbnail be reused on re-render; the key now also includes the attachment's filepath (#57, thanks @schmidtocean)
+- **Template JSON import dropped visibility/styling fields** — exported templates carry `admin_only`, `disabled`, and `event_button_color`, but re-importing them silently reset `admin_only`/`disabled` to `false` and dropped `event_button_color`, since the import path only forwarded a subset of fields to the server (#60, thanks @schmidtocean)
+- **Long custom vocabulary could crash clipboard export** — cruise/lowering clipboard formatting right-pads labels to a fixed column width sized for the default "Cruise"/"Lowering" wording; a longer `CUSTOM_CRUISE_NAME`/`CUSTOM_LOWERING_NAME` made the padding count go negative, and `String.repeat()` throws on a negative count (#58, thanks @schmidtocean)
+- **Depth plot domain didn't match lowering start/stop** — the milestones/stats depth chart had no explicit `xAxis` range, so it scaled to the extent of the depth data instead of the lowering's actual start/stop, making the plot's visible range inconsistent with the milestones shown alongside it (#22)
+- **`SERVER_TLS` missing from `client_settings.js.dist` export** — the variable was defined but never exported, so any deployment configured off the `.dist` template had `SERVER_TLS` come through as `undefined`
+- **Duplicated event template name prepended "Copy of"** — `handleEventTemplateDuplicate` now appends " Copy" to the button name instead (#73)
+
+### Security
+- Bumped `nanoid` to 3.3.18, resolving an indefinite-loop DoS advisory (GHSA-2v37-7h3g-55p8)
+
+### Internal
+- Updated `axios`, `@fontsource/roboto`, `css-loader`, `html-webpack-plugin`, `prettier`, `sass`, `webpack`, and `webpack-cli` to their latest versions within existing semver ranges
+
 ## [2.4.12] - 2026-08-18
 
 ### Added

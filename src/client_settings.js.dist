@@ -125,6 +125,7 @@ const CATEGORY_SORT_ORDER = null
 const DEFAULT_EVENT_TEMPLATE_BUTTON_COLOR = 'primary'
 
 module.exports = {
+  SERVER_TLS,
   API_ROOT_URL,
   WS_ROOT_URL,
   ROOT_PATH,
