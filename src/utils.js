@@ -72,7 +72,7 @@ export const buildEventQuery = ({ startTS, eventFilterValue, hideASNAP, activePa
   return {
     startTS,
     ...extraFilter,
-    value: filterValue ? filterValue.split(',') : null,
+    fulltext: filterValue ? filterValue.split(',') : null,
     sort: 'newest',
     offset: (activePage - 1) * maxPerPage,
     limit: maxPerPage
