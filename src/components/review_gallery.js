@@ -54,10 +54,10 @@ class ReviewGallery extends Component {
   async initLoweringImages(id, auxDatasourceFilter = IMAGES_AUX_DATA_SOURCES) {
     this.setState({ fetching: true })
 
+    const fulltext = this.state.eventFilter || (this.props.event.hideASNAP ? '!ASNAP' : null)
     const query = {
       datasource: auxDatasourceFilter,
-      value: this.props.event.hideASNAP ? ['!ASNAP'] : null,
-      fulltext: this.state.eventFilter
+      fulltext: fulltext ? fulltext.split(',') : null
     }
 
     const aux_data = await get_event_aux_data_by_lowering(query, id)
