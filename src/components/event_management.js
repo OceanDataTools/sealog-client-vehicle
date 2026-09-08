@@ -98,11 +98,15 @@ class EventManagement extends Component {
 
     const query = buildEventQuery({
       startTS: this.state.startTS,
-      eventFilterValue: this.state.eventFilter.value,
+      eventFilterValue: this.state.eventFilter.fulltext,
       hideASNAP: this.state.hideASNAP,
       activePage: this.state.activePage,
       maxPerPage: maxEventsPerPage,
-      extraFilter: this.state.eventFilter
+      extraFilter: {
+        ...this.state.eventFilter,
+        author: this.state.eventFilter.author ? this.state.eventFilter.author.split(',') : null,
+        datasource: this.state.eventFilter.datasource ? this.state.eventFilter.datasource.split(',') : null
+      }
     })
 
     const events = await get_events(query)

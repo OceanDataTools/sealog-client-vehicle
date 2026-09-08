@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.14] - 2026-09-08
+
+### Fixed
+- **Export dropdown produced an empty file when the event filter form had values** — `export_dropdown.js` still referenced the `eventFilter.value` field removed when full-text search replaced `event_value`, and spread `fulltext`/`author`/`datasource` as raw comma-joined strings instead of arrays, so the server matched zero events on any filtered export (#75)
+- **Event History search box didn't filter events** — `buildEventQuery()` and `event_history.js`'s event-export fallback query still sent the search term under the retired `value` query param instead of `fulltext`, so search terms had no effect on the server (#76)
+- **Event Management filter form didn't filter events** — `fetchEvents()` read the nonexistent `eventFilter.value` field and spread `author`/`datasource` as unsplit comma-joined strings instead of arrays, so filtering by full text, author, or datasource had no effect (#77)
+
 ## [2.4.13] - 2026-09-04
 
 ### Added
