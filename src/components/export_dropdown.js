@@ -19,11 +19,12 @@ const timeFormat = 'HHmm'
 
 class ExportDropdown extends Component {
   buildQuery(exportFormat = null) {
-    const eventFilterValue = this.props.eventFilter.value ? this.props.eventFilter.value : this.props.hideASNAP ? '!ASNAP' : null
+    const eventFilterFulltext = this.props.eventFilter.fulltext ? this.props.eventFilter.fulltext : this.props.hideASNAP ? '!ASNAP' : null
     const query = {
       ...this.props.eventFilter,
-      value: eventFilterValue ? eventFilterValue.split(',') : null,
+      fulltext: eventFilterFulltext ? eventFilterFulltext.split(',') : null,
       author: this.props.eventFilter.author ? this.props.eventFilter.author.split(',') : null,
+      datasource: this.props.eventFilter.datasource ? this.props.eventFilter.datasource.split(',') : null,
       sort: this.props.sort
     }
     if (exportFormat) {
