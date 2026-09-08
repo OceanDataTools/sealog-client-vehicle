@@ -159,7 +159,7 @@ class EventHistory extends Component {
   async fetchEventExport(event_id) {
     if (!event_id) {
       const query = {
-        value: this.state.hideASNAP ? ['!ASNAP'] : null,
+        fulltext: this.state.hideASNAP ? ['!ASNAP'] : null,
         sort: 'newest',
         limit: 1
       }
