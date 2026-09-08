@@ -14,12 +14,15 @@ class ReviewGallery extends Component {
   constructor(props) {
     super(props)
 
+    const fulltext = (props.event.eventFilter && props.event.eventFilter.fulltext) || null
+
     this.state = {
       fetching: false,
       aux_data: {},
       maxImagesPerPage: 16,
       filterTimer: null,
-      eventFilter: null
+      searchText: fulltext || '',
+      eventFilter: fulltext
     }
 
     this.formRef = React.createRef()
@@ -54,10 +57,10 @@ class ReviewGallery extends Component {
   async initLoweringImages(id, auxDatasourceFilter = IMAGES_AUX_DATA_SOURCES) {
     this.setState({ fetching: true })
 
+    const fulltext = this.state.eventFilter || (this.props.event.hideASNAP ? '!ASNAP' : null)
     const query = {
       datasource: auxDatasourceFilter,
-      value: this.props.event.hideASNAP ? ['!ASNAP'] : null,
-      fulltext: this.state.eventFilter
+      fulltext: fulltext ? fulltext.split(',') : null
     }
 
     const aux_data = await get_event_aux_data_by_lowering(query, id)
@@ -91,11 +94,14 @@ class ReviewGallery extends Component {
   }
 
   handleSearchChange(event) {
-    let eventFilterValue = event.target.value !== '' ? event.target.value : null
+    const searchText = event.target.value
+    const eventFilterValue = searchText !== '' ? searchText : null
     clearTimeout(this.state.filterTimer)
     this.setState({
+      searchText,
       filterTimer: setTimeout(() => {
         this.setState({ eventFilter: eventFilterValue })
+        this.props.updateEventFilterForm({ ...this.props.event.eventFilter, fulltext: eventFilterValue })
       }, 500)
     })
   }
@@ -164,7 +170,7 @@ class ReviewGallery extends Component {
               </Form.Select>
             </Form.Group>
             <Form style={{ marginTop: '-4px' }} className='float-end me-2' onSubmit={(event) => event.preventDefault()}>
-              <FormControl size='sm' type='text' placeholder='Search' onChange={this.handleSearchChange} />
+              <FormControl size='sm' type='text' placeholder='Search' value={this.state.searchText} onChange={this.handleSearchChange} />
             </Form>
             <span className='me-2 text-primary float-end clickable' style={{ fontSize: '.85rem' }} onClick={this.toggleASNAP}>
               {this.props.event.hideASNAP ? 'Show ASNAP' : 'Hide ASNAP'}
@@ -188,7 +194,8 @@ ReviewGallery.propTypes = {
   initCruise: PropTypes.func.isRequired,
   initReviewReplay: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
-  toggleASNAP: PropTypes.func.isRequired
+  toggleASNAP: PropTypes.func.isRequired,
+  updateEventFilterForm: PropTypes.func.isRequired
 }
 
 const mapStateToProps = (state) => {
