@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.15] - 2026-09-08
+
+### Fixed
+- **Review Gallery "Hide ASNAP" toggle didn't filter images** — `initLoweringImages()` sent the ASNAP exclusion under the retired `value` query param instead of merging it into `fulltext` alongside the search box's term, so the server never applied it and ASNAP-tagged images stayed visible regardless of the toggle (#83)
+- **Review Gallery's full-text filter wasn't retained when navigating from Review Map/Replay** — the gallery's search box kept its term in local component state, disconnected from the shared `eventFilter` Redux state that Review Map/Replay read and wrote via `EventFilterForm`, so a filter set on one page was silently lost when switching to the gallery (#84)
+
 ## [2.4.14] - 2026-09-08
 
 ### Fixed
