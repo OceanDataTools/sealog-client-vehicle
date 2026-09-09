@@ -16,6 +16,7 @@ COPY src/client_settings.js.dist ./src/client_settings.js
 COPY src/map_tilelayers.js.dist ./src/map_tilelayers.js
 COPY src/milestones.js.dist ./src/milestones.js
 COPY webpack.config.js.dist ./webpack.config.js
+COPY .env.dist ./.env
 
 # Build the React app
 RUN npm run build
