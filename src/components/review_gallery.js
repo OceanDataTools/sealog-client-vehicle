@@ -8,6 +8,7 @@ import GalleryTab from './gallery_tab'
 import ReviewDropdown from './review_dropdown'
 import { get_event_aux_data_by_lowering, get_cruise_by_lowering } from '../api'
 import { IMAGES_AUX_DATA_SOURCES } from '../client_settings'
+import { combineFulltextFilter } from '../utils'
 import * as mapDispatchToProps from '../actions'
 
 class ReviewGallery extends Component {
@@ -49,6 +50,10 @@ class ReviewGallery extends Component {
     }
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.state.filterTimer)
+  }
+
   toggleASNAP() {
     this.props.toggleASNAP()
     this.props.eventUpdateReviewReplay()
@@ -57,7 +62,7 @@ class ReviewGallery extends Component {
   async initLoweringImages(id, auxDatasourceFilter = IMAGES_AUX_DATA_SOURCES) {
     this.setState({ fetching: true })
 
-    const fulltext = this.state.eventFilter || (this.props.event.hideASNAP ? '!ASNAP' : null)
+    const fulltext = combineFulltextFilter(this.state.eventFilter, this.props.event.hideASNAP)
     const query = {
       datasource: auxDatasourceFilter,
       fulltext: fulltext ? fulltext.split(',') : null
@@ -102,6 +107,7 @@ class ReviewGallery extends Component {
       filterTimer: setTimeout(() => {
         this.setState({ eventFilter: eventFilterValue })
         this.props.updateEventFilterForm({ ...this.props.event.eventFilter, fulltext: eventFilterValue })
+        this.props.eventUpdateReviewReplay()
       }, 500)
     })
   }

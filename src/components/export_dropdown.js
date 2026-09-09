@@ -11,6 +11,7 @@ import {
   get_events,
   get_events_by_lowering
 } from '../api'
+import { combineFulltextFilter } from '../utils'
 
 let fileDownload = require('js-file-download')
 
@@ -19,7 +20,7 @@ const timeFormat = 'HHmm'
 
 class ExportDropdown extends Component {
   buildQuery(exportFormat = null) {
-    const eventFilterFulltext = this.props.eventFilter.fulltext ? this.props.eventFilter.fulltext : this.props.hideASNAP ? '!ASNAP' : null
+    const eventFilterFulltext = combineFulltextFilter(this.props.eventFilter.fulltext, this.props.hideASNAP)
     const query = {
       ...this.props.eventFilter,
       fulltext: eventFilterFulltext ? eventFilterFulltext.split(',') : null,
