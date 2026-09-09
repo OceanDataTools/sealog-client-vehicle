@@ -64,11 +64,19 @@ export const connectWSClient = async (client, subscriptions, { maxRetries = 3, b
   }
 }
 
+// Combines the free-text search filter with the Hide-ASNAP toggle so both apply together (AND), not one overriding the other.
+export const combineFulltextFilter = (fulltext, hideASNAP) => {
+  const terms = []
+  if (hideASNAP) terms.push('!ASNAP')
+  if (fulltext) terms.push(fulltext)
+  return terms.length ? terms.join(',') : null
+}
+
 // Builds the query object for paginated event fetching.
 // eventFilterValue: the active filter string (or null)
 // extraFilter: additional fields to merge into the query (e.g. full filter object from event_management)
 export const buildEventQuery = ({ startTS, eventFilterValue, hideASNAP, activePage, maxPerPage, extraFilter = {} }) => {
-  const filterValue = eventFilterValue || (hideASNAP ? '!ASNAP' : null)
+  const filterValue = combineFulltextFilter(eventFilterValue, hideASNAP)
   return {
     startTS,
     ...extraFilter,

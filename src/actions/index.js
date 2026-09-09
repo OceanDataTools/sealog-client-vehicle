@@ -95,6 +95,7 @@ import {
 } from './types'
 
 import { ROOT_PATH } from '../client_settings'
+import { combineFulltextFilter } from '../utils'
 
 const port = window.location.port ? ':' + window.location.port : ''
 export const resetURL = window.location.protocol + '//' + window.location.hostname + port + ROOT_PATH + 'resetPassword/'
@@ -434,7 +435,7 @@ export const eventUpdateReviewReplay = () => {
     dispatch({ type: EVENT_FETCHING, payload: true })
 
     const eventFilter = getState().event.eventFilter
-    const fulltext = eventFilter.fulltext ? eventFilter.fulltext : getState().event.hideASNAP ? '!ASNAP' : null
+    const fulltext = combineFulltextFilter(eventFilter.fulltext, getState().event.hideASNAP)
     const query = {
       ...eventFilter,
       fulltext: fulltext ? fulltext.split(',') : null,
@@ -655,11 +656,7 @@ export const initReviewReplay = (id) => {
     dispatch({ type: EVENT_FETCHING, payload: true })
     dispatch(initLowering(id))
 
-    const eventFilter_fulltext = getState().event.eventFilter.fulltext
-      ? getState().event.eventFilter.fulltext
-      : getState().event.hideASNAP
-        ? '!ASNAP'
-        : null
+    const eventFilter_fulltext = combineFulltextFilter(getState().event.eventFilter.fulltext, getState().event.hideASNAP)
 
     const query = {
       ...getState().event.eventFilter,
