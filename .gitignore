@@ -21,6 +21,9 @@ node_modules/
 # Output Directory
 /dist
 
+# Deployment env config
+/.env
+
 # CLient Config
 /src/client_settings.js
 
