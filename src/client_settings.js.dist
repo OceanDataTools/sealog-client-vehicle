@@ -1,16 +1,41 @@
 const Pkg = require('../package.json')
 
-// Set whether the server is using http/https
+// Settings below are sourced from the SEALOG_* variables in .env (see
+// .env.dist for the full list and documentation of each setting). Values
+// are baked in at build time - changing .env requires a rebuild
+// (npm run build / npm start) to take effect. Any setting left empty in
+// .env falls back to the default shown here.
+//
+// AUX_DATA_DATASOURCE_REPLACE (below) is the one exception: its structure
+// (a key/value map) doesn't fit .env's flat format, so it must be edited
+// directly in this file.
+
+// Parses a comma-separated env value into a trimmed array, or null if empty.
+const parseList = (value) => {
+  if (!value) return null
+  const list = value
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item !== '')
+  return list.length ? list : null
+}
+
+// Parses an env value into a RegExp (source pattern only, no slashes/flags), or null if empty.
+const parseRegExp = (value) => {
+  return value ? new RegExp(value) : null
+}
+
+// Set whether the server is using http/https.
 // Default is http (false).
-const SERVER_TLS = false
+const SERVER_TLS = process.env.SEALOG_SERVER_TLS === 'true'
 
 // Set the server hostname.
 // Default is to use the same hostname as specified in the client URL.
-const SERVER_HOSTNAME = typeof window !== 'undefined' && window.location.hostname
+const SERVER_HOSTNAME = process.env.SEALOG_SERVER_HOSTNAME || (typeof window !== 'undefined' && window.location.hostname)
 
 // Set the server port number.
 // Default is 8000.
-const SERVER_PORT = 8100
+const SERVER_PORT = process.env.SEALOG_SERVER_PORT || 8100
 
 // Complete URLs for the Sealog Server.
 // This is comprised based on the SERVER_TLS, SERVER_HOSTNAME and
@@ -22,107 +47,110 @@ const WS_ROOT_URL = `${SERVER_TLS ? 'wss' : 'ws'}://${SERVER_HOSTNAME}:${SERVER_
 // This MUST match where the client is being hosted by the webserver.
 // Change this if not hosting the client at the webserver's document root
 // i.e. '/sealog/'
-const ROOT_PATH = '/'
+const ROOT_PATH = process.env.SEALOG_ROOT_PATH || '/'
 
 // Where the images are hosted on the webserver.
-const IMAGE_PATH = '/files/images'
+const IMAGE_PATH = process.env.SEALOG_IMAGE_PATH || '/files/images'
 
 // Site customization
 // Optional reCaptcha bot abuse protection.
-const RECAPTCHA_SITE_KEY = null
+const RECAPTCHA_SITE_KEY = process.env.SEALOG_RECAPTCHA_SITE_KEY || null
 
 // Text show on the login page to the right of the login form.
 const LOGIN_SCREEN_TXT =
+  process.env.SEALOG_LOGIN_SCREEN_TXT ||
   'Sealog provides the Oceanographic Research community with an open-source tool for recording, reviewing, and exporting in-situ scientific and operational observations.'
 
 // Optional image file shown on login page. Will appear under the
 // LOGIN_SCREEN_TXT. This image must end in ".jpg", "jpeg", ".png" format and
 // located in the ./assets/images folder
-const LOGIN_IMAGE = null
+const LOGIN_IMAGE = process.env.SEALOG_LOGIN_IMAGE || null
 
 // Text show on the main page above the cruise list.
-const MAIN_SCREEN_HEADER = 'Welcome to Sealog'
+const MAIN_SCREEN_HEADER = process.env.SEALOG_MAIN_SCREEN_HEADER || 'Welcome to Sealog'
 
 // Text show on the main page below MAIN_SCREEN_HEADER and above the cruise
 // list.
 const MAIN_SCREEN_TXT =
+  process.env.SEALOG_MAIN_SCREEN_TXT ||
   'Please select a cruise from the list below. Selecting a cruise will open the cruise information panel. At the bottom of the cruise information panel there will be links for selecting a lowering. Selecting a lowering will open the lowering information panel. At the bottom of the lowering information panel there will be links proceeding to the lowering replay section, the lowering map section and the lowering gallery section of Sealog. If at any time you wish to return to this page please click the "Review Cruises/Lowerings" text in upper navigation bar.'
 
 // Text displayed on the left side of the title bar
 const HEADER_TITLE = `Sealog for Vehicles v${Pkg.version}`
 
 // Default vessel used when created new cruises
-const DEFAULT_VESSEL = 'R/V Discovery'
+const DEFAULT_VESSEL = process.env.SEALOG_DEFAULT_VESSEL || 'R/V Discovery'
 
 // Add cruise-level and lowering-level authentication.
 // This needs to match the 'useAccessControl' setting on the sealog-server.
-const USE_ACCESS_CONTROL = false
+const USE_ACCESS_CONTROL = process.env.SEALOG_USE_ACCESS_CONTROL === 'true'
 
 // Remove ability to add new events. Set to true for read-only instances of Sealog
-const DISABLE_EVENT_LOGGING = false
+const DISABLE_EVENT_LOGGING = process.env.SEALOG_DISABLE_EVENT_LOGGING === 'true'
 
 // Optional placeholder text displayed in CruiseID textfield.
 // This is just a helpful hint to user on how to properly format the cruise ID.
 // i.e. OXR20210101
-const CRUISE_ID_PLACEHOLDER = null
+const CRUISE_ID_PLACEHOLDER = process.env.SEALOG_CRUISE_ID_PLACEHOLDER || null
 
 // Optional RegExp object to use when verifying a cruise ID.
 // Non-compliant cruise ID are allowed but a warning message will be shown.
 // i.e. RegExp(/^OXR20[0-9]{2}[0-1][0-9][0-3][0-9]$/)
-const CRUISE_ID_REGEX = null
+const CRUISE_ID_REGEX = parseRegExp(process.env.SEALOG_CRUISE_ID_REGEX)
 
 // Optional customization for cruise nominclarture
 // Format: ["single version","plural version"]. Specify lowercase versions,
 // will be capitalized within the client as needed.
 // Default is ['cruise', 'cruises']
-const CUSTOM_CRUISE_NAME = null
+const CUSTOM_CRUISE_NAME = parseList(process.env.SEALOG_CUSTOM_CRUISE_NAME)
 
 // Optional placeholder text displayed in LoweringID textfield.
 // This is just a helpful hint to user on how to properly format the lowering ID
 // i.e. CHR0001
-const LOWERING_ID_PLACEHOLDER = null
+const LOWERING_ID_PLACEHOLDER = process.env.SEALOG_LOWERING_ID_PLACEHOLDER || null
 
 // Optional RegExp object to use when verifying a lowering ID.
 // Non-compliant lowering ID are allowed but a warning message will be shown.
 // i.e. RegExp(/^CHR[0-9]{4}$/)
-const LOWERING_ID_REGEX = null
+const LOWERING_ID_REGEX = parseRegExp(process.env.SEALOG_LOWERING_ID_REGEX)
 
 // Optional customization for lowering nominclarture
 // Format: ["single version","plural version"]. Specify lowercase versions,
 // will be capitalized within the client as needed.
 // Default is ['lowering', 'lowerings']
-const CUSTOM_LOWERING_NAME = null
+const CUSTOM_LOWERING_NAME = parseList(process.env.SEALOG_CUSTOM_LOWERING_NAME)
 
 // List of auxdata datasources that should be interpreted as vehicle position.
 // List should be defined in order of importance
-const POSITION_DATASOURCES = ['vehicleRealtimeNavData']
+const POSITION_DATASOURCES = parseList(process.env.SEALOG_POSITION_DATASOURCES) || ['vehicleRealtimeNavData']
 
 // Optional list of auxdata datasources that should NOT be displayed in the
 // event history, lowering replay or lowering map
-const EXCLUDE_AUX_DATA_SOURCES = []
+const EXCLUDE_AUX_DATA_SOURCES = parseList(process.env.SEALOG_EXCLUDE_AUX_DATA_SOURCES) || []
 
 // Optional list of auxdata datasources that should be interpreted as imagery
 // and formatted as such in the event history, lowering replay and lowering
 // gallery.
-const IMAGES_AUX_DATA_SOURCES = ['eventFileAttachments', 'framegrabber']
+const IMAGES_AUX_DATA_SOURCES = parseList(process.env.SEALOG_IMAGES_AUX_DATA_SOURCES) || ['eventFileAttachments', 'framegrabber']
 
 // Optional list defining how to order auxdata data sources in the event
 // history and lowering replay
-const AUX_DATA_SORT_ORDER = ['eventFileAttachments', 'vehicleRealtimeNavData']
+const AUX_DATA_SORT_ORDER = parseList(process.env.SEALOG_AUX_DATA_SORT_ORDER) || ['eventFileAttachments', 'vehicleRealtimeNavData']
 
 // Optional key/value pairs for how to format auxdata data source names in
 // event history and event replay.
 // Format: {<auxdata_datasource>: <display text>}.
 // i.e. { vehicleRealtimeCTDData: 'Vehicle Realtime CTD Data', ... }
+// Not configurable via .env - edit directly if needed.
 const AUX_DATA_DATASOURCE_REPLACE = null
 
 // Optional list defining how to order event template categories
 // i.e. ['science','problem','vehicle']
-const CATEGORY_SORT_ORDER = null
+const CATEGORY_SORT_ORDER = parseList(process.env.SEALOG_CATEGORY_SORT_ORDER)
 
 // Default button color (Bootstrap variant name) used for event templates
 // that do not specify their own event_button_color.
-const DEFAULT_EVENT_TEMPLATE_BUTTON_COLOR = 'primary'
+const DEFAULT_EVENT_TEMPLATE_BUTTON_COLOR = process.env.SEALOG_DEFAULT_EVENT_TEMPLATE_BUTTON_COLOR || 'primary'
 
 module.exports = {
   SERVER_TLS,

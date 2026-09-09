@@ -1,6 +1,11 @@
+// Loads .env into process.env before client_settings.js is required below,
+// since client_settings.js reads SEALOG_* values from process.env.
+require('dotenv').config()
+
 const { ROOT_PATH, HEADER_TITLE } = require('./src/client_settings')
 const webpack = require('webpack')
 const path = require('path')
+const Dotenv = require('dotenv-webpack')
 const CopyPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -107,6 +112,9 @@ module.exports = {
     ]
   },
   plugins: [
+    new Dotenv({
+      path: './.env'
+    }),
     new webpack.ProvidePlugin({
       process: 'process/browser'
     }),
