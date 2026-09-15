@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Browser tab title was never set** — `HtmlWebpackPlugin`'s `title` option (`HEADER_TITLE`) had no effect because the custom `index.html` template had no `<title>` tag or interpolation for it to fill in, regardless of `HEADER_TITLE`/`SEALOG_HEADER_TITLE` (#96)
+- **Favicon was never shown** — `favicon.ico` was copied into the build by `CopyPlugin` but never referenced from `index.html`, so a browser's default `/favicon.ico` request 404'd; now linked via `HtmlWebpackPlugin`'s `favicon` option, which resolves correctly under `SEALOG_ROOT_PATH` (#100)
+- **Docker build warning** — `Dockerfile.dist` used `FROM node:lts-alpine as build` (lowercase `as`), which BuildKit flags with `FromAsCasing`; changed to `AS` to match `FROM`'s casing (#99)
 
 ## [2.4.16] - 2026-09-09
 
