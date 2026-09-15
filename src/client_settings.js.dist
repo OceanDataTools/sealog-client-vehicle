@@ -76,7 +76,7 @@ const MAIN_SCREEN_TXT =
   'Please select a cruise from the list below. Selecting a cruise will open the cruise information panel. At the bottom of the cruise information panel there will be links for selecting a lowering. Selecting a lowering will open the lowering information panel. At the bottom of the lowering information panel there will be links proceeding to the lowering replay section, the lowering map section and the lowering gallery section of Sealog. If at any time you wish to return to this page please click the "Review Cruises/Lowerings" text in upper navigation bar.'
 
 // Text displayed on the left side of the title bar
-const HEADER_TITLE = `Sealog for Vehicles v${Pkg.version}`
+const HEADER_TITLE = process.env.SEALOG_HEADER_TITLE || `Sealog for Vehicles v${Pkg.version}`
 
 // Default vessel used when created new cruises
 const DEFAULT_VESSEL = process.env.SEALOG_DEFAULT_VESSEL || 'R/V Discovery'
