@@ -6,20 +6,20 @@ export const TILE_LAYERS = [
     name: 'Esri Dark Gray',
     attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    maxNativeZoom: 16,
+    maxNativeZoom: 12,
     default: true
   },
   {
     name: 'Esri Light Gray',
     attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    maxNativeZoom: 16
+    maxNativeZoom: 12
   },
   {
     name: 'Esri Ocean',
     attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
-    maxNativeZoom: 13
+    maxNativeZoom: 10
   },
   {
     name: 'GMRT Basemap',
@@ -38,7 +38,7 @@ export const OVERLAY_LAYERS = [
     name: 'Esri Ocean Labels',
     attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}',
-    maxNativeZoom: 13
+    maxNativeZoom: 10
   }
 ]
 
