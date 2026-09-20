@@ -6,14 +6,14 @@ export const TILE_LAYERS = [
     name: 'Esri Dark Gray',
     attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    maxNativeZoom: 12,
+    maxNativeZoom: 11,
     default: true
   },
   {
     name: 'Esri Light Gray',
     attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    maxNativeZoom: 12
+    maxNativeZoom: 11
   },
   {
     name: 'Esri Ocean',
