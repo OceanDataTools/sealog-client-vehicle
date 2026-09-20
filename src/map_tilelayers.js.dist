@@ -3,17 +3,23 @@
 // https://leafletjs.com/reference.html#tilelayer
 export const TILE_LAYERS = [
   {
-    name: 'Carto Dark',
-    attribution:
-      '&copy <a href="http://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, &copy <a href="https://carto.com/about-carto/">dark_all</a>',
-    url: '  https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+    name: 'Esri Dark Gray',
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    maxNativeZoom: 11,
+    default: true
   },
   {
-    name: 'Carto Voyager',
-    attribution:
-      '&copy <a href="http://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, &copy <a href="https://carto.com/about-carto/">dark_all</a>',
-    url: '  https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-    default: true
+    name: 'Esri Light Gray',
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    maxNativeZoom: 11
+  },
+  {
+    name: 'Esri Ocean',
+    attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
+    maxNativeZoom: 10
   },
   {
     name: 'GMRT Basemap',
@@ -27,7 +33,14 @@ export const TILE_LAYERS = [
 
 // List of overlay tilesets.  This can be set to an explicit list similar to
 // TILE_LAYERS or to a url that returns the array
-export const OVERLAY_LAYERS = []
+export const OVERLAY_LAYERS = [
+  {
+    name: 'Esri Ocean Labels',
+    attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}',
+    maxNativeZoom: 10
+  }
+]
 
 // Default location of map while data is loading or in the absence of position
 // data.
