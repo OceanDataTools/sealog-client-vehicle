@@ -7,12 +7,14 @@ export const dateFormat = 'YYYY-MM-DD'
 export const timeFormat = 'HH:mm:ss'
 
 export const renderStaticTextField = ({ input, label, xs = 12, sm = 12, md = 12, lg = 12 }) => {
-  const labelComponent = label ? <Form.Label>{label}</Form.Label> : null
+  const labelComponent = label ? <Form.Label htmlFor={input.name}>{label}</Form.Label> : null
 
   return (
     <Form.Group as={Col} xs={xs} sm={sm} md={md} lg={lg}>
       {labelComponent}
-      <Form.Control type='text' {...input} disabled />
+      <Form.Control as='output' id={input.name} className='form-static-text'>
+        {input.value}
+      </Form.Control>
     </Form.Group>
   )
 }
