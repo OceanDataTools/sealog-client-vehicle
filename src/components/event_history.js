@@ -94,6 +94,7 @@ class EventHistory extends Component {
   }
 
   componentWillUnmount() {
+    clearTimeout(this.auxDataRefreshTimer)
     if (this.props.authenticated) {
       this.client.disconnect()
     }
@@ -112,11 +113,21 @@ class EventHistory extends Component {
       }
     }
 
-    const updateAuxDataHandler = async (update) => {
-      const event = (await get_events({}, update.event_id)) || {}
-      if (event.id) {
-        updateHandler(event)
-      }
+    const updateAuxDataHandler = (update) => {
+      const isDisplayedEvent = () => update.event_id === (this.state.activePage === 1 ? this.state.events[0]?.id : this.state.event.id)
+      if (!update.event_id || !isDisplayedEvent()) return
+
+      // Refresh only the detail card, after a quiet period or at most 1s of updates.
+      if (this.auxDataRefreshStartedAt == null) this.auxDataRefreshStartedAt = Date.now()
+      const elapsed = Date.now() - this.auxDataRefreshStartedAt
+      clearTimeout(this.auxDataRefreshTimer)
+      this.auxDataRefreshTimer = setTimeout(
+        () => {
+          this.auxDataRefreshStartedAt = null
+          if (isDisplayedEvent()) this.fetchEventExport(update.event_id)
+        },
+        Math.max(0, Math.min(200, 1000 - elapsed))
+      )
     }
 
     await connectWSClient(this.client, {
