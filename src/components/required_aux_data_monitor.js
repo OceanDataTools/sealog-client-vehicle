@@ -6,6 +6,7 @@ import { Client } from '@hapi/nes/lib/client'
 import { get_event_aux_data, get_lowerings } from '../api'
 import { connectWSClient } from '../utils'
 import {
+  ROOT_PATH,
   WS_ROOT_URL,
   REQUIRED_AUX_DATA_SOURCES,
   REQUIRED_AUX_DATA_TOAST_COOLDOWN,
@@ -14,8 +15,9 @@ import {
 import * as mapDispatchToProps from '../actions'
 
 // localStorage key used to persist the last check result and toast cooldown
-// across page refreshes.
-const storageKey = 'sealogRequiredAuxData'
+// across page refreshes. Includes ROOT_PATH so multiple clients hosted on the
+// same origin (e.g. /sealog-vehicle/ and /sealog-vessel/) don't share state.
+const storageKey = `sealogRequiredAuxData:${ROOT_PATH}`
 
 const loadStoredState = () => {
   try {
