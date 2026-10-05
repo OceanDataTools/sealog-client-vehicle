@@ -23,6 +23,7 @@ import CruiseMenu from './components/cruise_menu'
 import Users from './components/users'
 import Tasks from './components/tasks'
 import EventErrorToast from './components/event_error_toast'
+import RequiredAuxDataMonitor from './components/required_aux_data_monitor'
 import EventLogging from './components/event_logging'
 import EventManagement from './components/event_management'
 import EventTemplates from './components/event_templates'
@@ -116,7 +117,7 @@ L.Marker.prototype.options.icon = DefaultIcon
 import configureStore from './store'
 import history from './history'
 
-import { DISABLE_EVENT_LOGGING } from './client_settings'
+import { DISABLE_EVENT_LOGGING, REQUIRED_AUX_DATA_SOURCES } from './client_settings'
 
 const store = configureStore()
 
@@ -130,6 +131,7 @@ ReactDOM.render(
     <ConnectedRouter history={history}>
       <Header />
       <EventErrorToast />
+      {!DISABLE_EVENT_LOGGING && REQUIRED_AUX_DATA_SOURCES.length > 0 && <RequiredAuxDataMonitor />}
       <Container fluid style={{ maxWidth: '1200px', paddingBottom: '70px' }}>
         <Switch>
           <Route path={`/`} exact={true} component={RequireAuth(DISABLE_EVENT_LOGGING ? CruiseMenu : EventLogging)} />

@@ -137,6 +137,22 @@ const IMAGES_AUX_DATA_SOURCES = parseList(process.env.SEALOG_IMAGES_AUX_DATA_SOU
 // history and lowering replay
 const AUX_DATA_SORT_ORDER = parseList(process.env.SEALOG_AUX_DATA_SORT_ORDER) || ['eventFileAttachments', 'vehicleRealtimeNavData']
 
+// Optional list of auxdata datasources expected on every event logged during
+// a lowering. When set, the footer shows whether the most recent event has
+// all of them and a warning toast is shown when one or more are missing.
+// Default is disabled (empty list).
+const REQUIRED_AUX_DATA_SOURCES = parseList(process.env.SEALOG_REQUIRED_AUX_DATA_SOURCES) || []
+
+// Minimum number of seconds between missing-auxdata warning toasts. A toast
+// is still shown immediately if the set of missing datasources changes.
+// Default is 300.
+const REQUIRED_AUX_DATA_TOAST_COOLDOWN = parseInt(process.env.SEALOG_REQUIRED_AUX_DATA_TOAST_COOLDOWN) || 300
+
+// Number of seconds to wait after an event is created before checking it for
+// the required auxdata datasources (auxdata is attached asynchronously by the
+// data managers). Default is 10.
+const REQUIRED_AUX_DATA_GRACE_PERIOD = parseInt(process.env.SEALOG_REQUIRED_AUX_DATA_GRACE_PERIOD) || 10
+
 // Optional key/value pairs for how to format auxdata data source names in
 // event history and event replay.
 // Format: {<auxdata_datasource>: <display text>}.
@@ -177,6 +193,9 @@ module.exports = {
   EXCLUDE_AUX_DATA_SOURCES,
   IMAGES_AUX_DATA_SOURCES,
   AUX_DATA_SORT_ORDER,
+  REQUIRED_AUX_DATA_SOURCES,
+  REQUIRED_AUX_DATA_TOAST_COOLDOWN,
+  REQUIRED_AUX_DATA_GRACE_PERIOD,
   AUX_DATA_DATASOURCE_REPLACE,
   CATEGORY_SORT_ORDER,
   DEFAULT_EVENT_TEMPLATE_BUTTON_COLOR
