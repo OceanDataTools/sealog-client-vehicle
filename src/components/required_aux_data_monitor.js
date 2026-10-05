@@ -13,11 +13,25 @@ import {
 } from '../client_settings'
 import * as mapDispatchToProps from '../actions'
 
+// localStorage key used to persist the last check result and toast cooldown
+// across page refreshes.
+const storageKey = 'sealogRequiredAuxData'
+
+const loadStoredState = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem(storageKey)) || {}
+  } catch (error) {
+    return {}
+  }
+}
+
 // Watches newly created events and, once each event's grace period has
 // passed, checks that it has every REQUIRED_AUX_DATA_SOURCES datasource.
 // The result is stored in redux (read by the footer) and a warning toast is
 // shown when sources are missing, rate-limited by
 // REQUIRED_AUX_DATA_TOAST_COOLDOWN unless the set of missing sources changes.
+// The last result and the toast cooldown are persisted in localStorage so
+// they survive page refreshes.
 // Only mount this component when REQUIRED_AUX_DATA_SOURCES is non-empty.
 class RequiredAuxDataMonitor extends Component {
   constructor(props) {
@@ -31,10 +45,17 @@ class RequiredAuxDataMonitor extends Component {
 
     // event_id -> { ts, seen: Set of datasources reported over WS, timer }
     this.pending = {}
-    this.lastEvaluatedTS = null
-    this.lastToastAt = null
-    this.lastToastMissing = null
     this.lowering = null
+
+    const stored = loadStoredState()
+    this.lastEvaluatedEventID = stored.lastEvaluatedEventID || null
+    this.lastEvaluatedTS = stored.lastEvaluatedTS || null
+    // Ignore stale entries for sources that are no longer required.
+    this.lastMissing = Array.isArray(stored.lastMissing)
+      ? stored.lastMissing.filter((source) => REQUIRED_AUX_DATA_SOURCES.includes(source))
+      : null
+    this.lastToastAt = stored.lastToastAt || null
+    this.lastToastMissing = Array.isArray(stored.lastToastMissing) ? stored.lastToastMissing : null
 
     this.client = new Client(`${WS_ROOT_URL}`)
     this.connectToWS = this.connectToWS.bind(this)
@@ -43,6 +64,7 @@ class RequiredAuxDataMonitor extends Component {
 
   componentDidMount() {
     if (this.props.authenticated) {
+      this.restoreStatus()
       this.connectToWS()
     }
   }
@@ -50,6 +72,7 @@ class RequiredAuxDataMonitor extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.authenticated !== this.props.authenticated) {
       if (this.props.authenticated) {
+        this.restoreStatus()
         this.connectToWS()
       } else {
         this.reset()
@@ -68,9 +91,35 @@ class RequiredAuxDataMonitor extends Component {
   reset() {
     Object.values(this.pending).forEach((item) => clearTimeout(item.timer))
     this.pending = {}
+    this.lastEvaluatedEventID = null
     this.lastEvaluatedTS = null
+    this.lastMissing = null
+    this.saveState()
     this.props.clearAuxDataStatus()
     this.setState({ showToast: false })
+  }
+
+  restoreStatus() {
+    if (this.lastMissing) {
+      this.props.updateAuxDataStatus(this.lastEvaluatedEventID, this.lastMissing)
+    }
+  }
+
+  saveState() {
+    try {
+      window.localStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          lastEvaluatedEventID: this.lastEvaluatedEventID,
+          lastEvaluatedTS: this.lastEvaluatedTS,
+          lastMissing: this.lastMissing,
+          lastToastAt: this.lastToastAt,
+          lastToastMissing: this.lastToastMissing
+        })
+      )
+    } catch (error) {
+      // Storage unavailable (e.g. private browsing); state just won't survive a refresh.
+    }
   }
 
   async connectToWS() {
@@ -143,7 +192,9 @@ class RequiredAuxDataMonitor extends Component {
 
     // The footer reflects the most recent event, even if results arrive out of order.
     if (this.lastEvaluatedTS === null || ts >= this.lastEvaluatedTS) {
+      this.lastEvaluatedEventID = event_id
       this.lastEvaluatedTS = ts
+      this.lastMissing = missing
       this.props.updateAuxDataStatus(event_id, missing)
     }
 
@@ -158,6 +209,8 @@ class RequiredAuxDataMonitor extends Component {
         this.setState((prevState) => ({ showToast: true, toastMissing: missing, toastId: prevState.toastId + 1 }))
       }
     }
+
+    this.saveState()
   }
 
   handleToastClose() {
