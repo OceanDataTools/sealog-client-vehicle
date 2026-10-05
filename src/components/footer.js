@@ -7,7 +7,7 @@ import prettyBytes from 'pretty-bytes'
 import { Nav, Navbar, NavbarCollapse } from 'react-bootstrap'
 import { get_custom_vars } from '../api'
 import { connectWSClient } from '../utils'
-import { WS_ROOT_URL, DISABLE_EVENT_LOGGING } from '../client_settings'
+import { WS_ROOT_URL, DISABLE_EVENT_LOGGING, REQUIRED_AUX_DATA_SOURCES } from '../client_settings'
 import * as mapDispatchToProps from '../actions'
 
 class Footer extends Component {
@@ -87,6 +87,7 @@ class Footer extends Component {
     let freeSpaceStatus = null
     let asnapStatus = null
     let wsStatus = null
+    let auxDataStatus = null
 
     if (!DISABLE_EVENT_LOGGING && this.props.authenticated) {
       const wsStatusStyle = this.state.wsConnected ? 'text-success' : 'text-danger'
@@ -126,11 +127,33 @@ class Footer extends Component {
       )
     }
 
+    if (!DISABLE_EVENT_LOGGING && this.props.authenticated && REQUIRED_AUX_DATA_SOURCES.length) {
+      const missing = this.props.auxDataMissing
+      let auxDataStatusSpan = <span className='text-warning me-3'>Unknown</span>
+      if (missing && missing.length) {
+        // Clicking re-shows the toast listing the missing sources.
+        auxDataStatusSpan = (
+          <span
+            className='text-warning clickable me-3'
+            role='button'
+            title={`Missing ${missing.join(', ')}`}
+            onClick={() => this.props.showAuxDataToast()}
+          >
+            Missing
+          </span>
+        )
+      } else if (missing) {
+        auxDataStatusSpan = <span className='text-success me-3'>OK</span>
+      }
+      auxDataStatus = <React.Fragment>Aux Data: {auxDataStatusSpan}</React.Fragment>
+    }
+
     return (
       <Navbar className='footer' collapseOnSelect expand='sm' variant='dark' fixed='bottom'>
         <Navbar.Text className='ms-4'>
           {wsStatus}
           {asnapStatus}
+          {auxDataStatus}
           {freeSpaceStatus}
         </Navbar.Text>
         <NavbarCollapse id='responsive-navbar-nav' className='justify-content-end'>
@@ -157,12 +180,15 @@ class Footer extends Component {
 }
 
 Footer.propTypes = {
-  authenticated: PropTypes.bool.isRequired
+  authenticated: PropTypes.bool.isRequired,
+  auxDataMissing: PropTypes.array,
+  showAuxDataToast: PropTypes.func.isRequired
 }
 
 const mapStateToProps = (state) => {
   return {
-    authenticated: state.auth.authenticated
+    authenticated: state.auth.authenticated,
+    auxDataMissing: state.aux_data_status.missing
   }
 }
 

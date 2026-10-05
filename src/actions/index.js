@@ -40,6 +40,7 @@ import {
   AUTH_ERROR,
   AUTH_SUCCESS,
   AUTH_USER,
+  CLEAR_AUX_DATA_STATUS,
   CLEAR_EVENT_ERROR,
   CLEAR_SELECTED_EVENT,
   CREATE_CRUISE_ERROR,
@@ -74,8 +75,10 @@ import {
   REGISTER_USER_ERROR,
   REGISTER_USER_SUCCESS,
   SET_SELECTED_EVENT,
+  SHOW_AUX_DATA_TOAST,
   TOGGLE_ASNAP,
   UNAUTH_USER,
+  UPDATE_AUX_DATA_STATUS,
   UPDATE_CRUISE_ERROR,
   UPDATE_CRUISE_SUCCESS,
   UPDATE_EVENT,
@@ -216,6 +219,25 @@ export const updateEventError = (message) => {
 export const clearEventError = () => {
   return {
     type: CLEAR_EVENT_ERROR
+  }
+}
+
+export const updateAuxDataStatus = (event_id, missing) => {
+  return {
+    type: UPDATE_AUX_DATA_STATUS,
+    payload: { event_id, missing }
+  }
+}
+
+export const clearAuxDataStatus = () => {
+  return {
+    type: CLEAR_AUX_DATA_STATUS
+  }
+}
+
+export const showAuxDataToast = () => {
+  return {
+    type: SHOW_AUX_DATA_TOAST
   }
 }
 
