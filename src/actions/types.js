@@ -77,3 +77,6 @@ export const LEAVE_LOWERING_FORM = 'leave_updagte_lowering_form'
 export const CREATE_LOWERING_SUCCESS = 'create_lowering_success'
 export const CREATE_LOWERING_ERROR = 'create_lowering_error'
 export const FETCH_LOWERINGS = 'fetch_lowerings'
+
+export const UPDATE_AUX_DATA_STATUS = 'update_aux_data_status'
+export const CLEAR_AUX_DATA_STATUS = 'clear_aux_data_status'
