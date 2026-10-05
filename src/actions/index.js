@@ -75,6 +75,7 @@ import {
   REGISTER_USER_ERROR,
   REGISTER_USER_SUCCESS,
   SET_SELECTED_EVENT,
+  SHOW_AUX_DATA_TOAST,
   TOGGLE_ASNAP,
   UNAUTH_USER,
   UPDATE_AUX_DATA_STATUS,
@@ -231,6 +232,12 @@ export const updateAuxDataStatus = (event_id, missing) => {
 export const clearAuxDataStatus = () => {
   return {
     type: CLEAR_AUX_DATA_STATUS
+  }
+}
+
+export const showAuxDataToast = () => {
+  return {
+    type: SHOW_AUX_DATA_TOAST
   }
 }
 

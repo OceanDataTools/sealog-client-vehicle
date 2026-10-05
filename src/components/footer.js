@@ -129,20 +129,23 @@ class Footer extends Component {
 
     if (!DISABLE_EVENT_LOGGING && this.props.authenticated && REQUIRED_AUX_DATA_SOURCES.length) {
       const missing = this.props.auxDataMissing
-      let auxDataStatusStyle = 'text-warning'
-      let auxDataStatusText = 'Unknown'
+      let auxDataStatusSpan = <span className='text-warning me-3'>Unknown</span>
       if (missing && missing.length) {
-        auxDataStatusStyle = 'text-danger'
-        auxDataStatusText = `Missing ${missing.join(', ')}`
+        // Clicking re-shows the toast listing the missing sources.
+        auxDataStatusSpan = (
+          <span
+            className='text-warning me-3'
+            role='button'
+            title={`Missing ${missing.join(', ')}`}
+            onClick={() => this.props.showAuxDataToast()}
+          >
+            Missing
+          </span>
+        )
       } else if (missing) {
-        auxDataStatusStyle = 'text-success'
-        auxDataStatusText = 'OK'
+        auxDataStatusSpan = <span className='text-success me-3'>OK</span>
       }
-      auxDataStatus = (
-        <React.Fragment>
-          Aux Data: <span className={auxDataStatusStyle + ' me-3'}>{auxDataStatusText}</span>
-        </React.Fragment>
-      )
+      auxDataStatus = <React.Fragment>Aux Data: {auxDataStatusSpan}</React.Fragment>
     }
 
     return (
@@ -178,7 +181,8 @@ class Footer extends Component {
 
 Footer.propTypes = {
   authenticated: PropTypes.bool.isRequired,
-  auxDataMissing: PropTypes.array
+  auxDataMissing: PropTypes.array,
+  showAuxDataToast: PropTypes.func.isRequired
 }
 
 const mapStateToProps = (state) => {

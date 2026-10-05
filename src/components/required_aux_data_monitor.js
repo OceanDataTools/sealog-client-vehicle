@@ -79,6 +79,11 @@ class RequiredAuxDataMonitor extends Component {
         this.client.disconnect()
       }
     }
+
+    // Re-show the toast on request (e.g. footer click), ignoring the cooldown.
+    if (prevProps.toastRequest !== this.props.toastRequest && this.lastMissing && this.lastMissing.length) {
+      this.setState((prevState) => ({ showToast: true, toastMissing: this.lastMissing, toastId: prevState.toastId + 1 }))
+    }
   }
 
   componentWillUnmount() {
@@ -237,12 +242,14 @@ class RequiredAuxDataMonitor extends Component {
 RequiredAuxDataMonitor.propTypes = {
   authenticated: PropTypes.bool.isRequired,
   updateAuxDataStatus: PropTypes.func.isRequired,
-  clearAuxDataStatus: PropTypes.func.isRequired
+  clearAuxDataStatus: PropTypes.func.isRequired,
+  toastRequest: PropTypes.number.isRequired
 }
 
 const mapStateToProps = (state) => {
   return {
-    authenticated: state.auth.authenticated
+    authenticated: state.auth.authenticated,
+    toastRequest: state.aux_data_status.toast_request
   }
 }
 

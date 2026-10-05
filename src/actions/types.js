@@ -80,3 +80,4 @@ export const FETCH_LOWERINGS = 'fetch_lowerings'
 
 export const UPDATE_AUX_DATA_STATUS = 'update_aux_data_status'
 export const CLEAR_AUX_DATA_STATUS = 'clear_aux_data_status'
+export const SHOW_AUX_DATA_TOAST = 'show_aux_data_toast'
