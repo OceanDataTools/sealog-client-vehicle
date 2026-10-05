@@ -134,7 +134,7 @@ class Footer extends Component {
         // Clicking re-shows the toast listing the missing sources.
         auxDataStatusSpan = (
           <span
-            className='text-warning me-3'
+            className='text-warning clickable me-3'
             role='button'
             title={`Missing ${missing.join(', ')}`}
             onClick={() => this.props.showAuxDataToast()}
