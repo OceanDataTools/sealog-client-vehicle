@@ -79,6 +79,7 @@ import {
   TOGGLE_ASNAP,
   UNAUTH_USER,
   UPDATE_AUX_DATA_STATUS,
+  UPDATE_AUX_DATA_LOWERING_ACTIVE,
   UPDATE_CRUISE_ERROR,
   UPDATE_CRUISE_SUCCESS,
   UPDATE_EVENT,
@@ -232,6 +233,13 @@ export const updateAuxDataStatus = (event_id, missing) => {
 export const clearAuxDataStatus = () => {
   return {
     type: CLEAR_AUX_DATA_STATUS
+  }
+}
+
+export const updateAuxDataLoweringActive = (lowering_active) => {
+  return {
+    type: UPDATE_AUX_DATA_LOWERING_ACTIVE,
+    payload: lowering_active
   }
 }
 
