@@ -92,7 +92,6 @@ class ReviewReplay extends Component {
   updateEventFilter(filter) {
     this.handleReviewReplayPause()
     this.setState({ activePage: 1, replayEventIndex: 0 })
-    this.props.advanceReviewReplayTo(this.props.event.events[0].id)
     this.props.updateEventFilterForm(filter)
     this.props.eventUpdateReviewReplay()
   }
@@ -101,9 +100,8 @@ class ReviewReplay extends Component {
     this.handleReviewReplayPause()
     this.props.toggleASNAP()
     this.setState({ replayEventIndex: 0 })
-    this.props.advanceReviewReplayTo(this.props.event.events[0].id)
     this.props.eventUpdateReviewReplay()
-    this.handleEventClick(0)
+    this.setState({ activePage: 1 })
   }
 
   sliderTooltipFormatter(v) {

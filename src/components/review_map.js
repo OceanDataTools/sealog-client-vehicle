@@ -72,7 +72,6 @@ class ReviewMap extends Component {
 
   updateEventFilter(filter = {}) {
     this.setState({ activePage: 1, replayEventIndex: 0 })
-    this.props.advanceReviewReplayTo(this.props.event.events[0].id)
     this.props.updateEventFilterForm(filter)
     this.props.eventUpdateReviewReplay()
   }
@@ -80,9 +79,8 @@ class ReviewMap extends Component {
   toggleASNAP() {
     this.props.toggleASNAP()
     this.setState({ replayEventIndex: 0 })
-    this.props.advanceReviewReplayTo(this.props.event.events[0].id)
     this.props.eventUpdateReviewReplay()
-    this.handleEventClick(0)
+    this.setState({ activePage: 1 })
   }
 
   sliderTooltipFormatter(v) {
