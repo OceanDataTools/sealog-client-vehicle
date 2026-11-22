@@ -72,17 +72,14 @@ class ReviewMap extends Component {
 
   updateEventFilter(filter = {}) {
     this.setState({ activePage: 1, replayEventIndex: 0 })
-    this.props.advanceReviewReplayTo(this.props.event.events[0].id)
     this.props.updateEventFilterForm(filter)
     this.props.eventUpdateReviewReplay()
   }
 
   toggleASNAP() {
     this.props.toggleASNAP()
-    this.setState({ replayEventIndex: 0 })
-    this.props.advanceReviewReplayTo(this.props.event.events[0].id)
+    this.setState({ activePage: 1, replayEventIndex: 0 })
     this.props.eventUpdateReviewReplay()
-    this.handleEventClick(0)
   }
 
   sliderTooltipFormatter(v) {
@@ -135,6 +132,11 @@ class ReviewMap extends Component {
 
   handleKeyDown(event) {
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      return
+    }
+
+    // Nothing to navigate when the filter matched no events.
+    if (!this.props.event.events || !this.props.event.events.length) {
       return
     }
 
